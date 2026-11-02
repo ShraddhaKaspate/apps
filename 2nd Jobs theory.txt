@@ -1,0 +1,2542 @@
+# Fibonacci using Recursive and Non-Recursive Methods
+
+Let's understand this practical from absolute zero, step by step. Don't worry if you are new to programming. We'll first understand what Fibonacci means, then understand the logic of both methods, and finally do a dry run with an example.
+
+## 1. What is the Fibonacci series?
+
+The Fibonacci series is a sequence of numbers in which each new number is the sum of the previous two numbers.
+
+The series starts with 0 and 1.
+
+# 0, 1, 1, 2, 3, 5, 8, 13, 21...
+
+How each number is calculated:
+
+0 + 1 = 1
+
+1 + 1 = 2
+
+1 + 2 = 3
+
+2 + 3 = 5
+
+For example:
+
+- First number = 0
+- Second number = 1
+- Third number = 0 + 1 = 1
+- Fourth number = 1 + 1 = 2
+- Fifth number = 1 + 2 = 3
+
+Important: In your program, `n` means the position of the Fibonacci number you want.
+
+For example:
+
+- `n = 0` gives 0
+- `n = 1` gives 1
+- `n = 5` gives 5
+
+Your program calculates the Fibonacci number at position `n`, not the entire series.
+
+## 2. What are Recursive and Non-Recursive methods?
+
+There are two ways to solve this problem.
+
+A. Recursive method
+
+A function calls itself again and again to solve a smaller version of the same problem.
+
+Example:
+
+`fib(5)` calls `fib(4)` and `fib(3)`.
+
+Uses function calls
+
+B. Non-Recursive method (Iterative)
+
+It uses a loop (`for` loop) to calculate the next number.
+
+Example:
+
+Start with `0, 1`, then keep adding them to get the next number.
+
+Uses a loop
+
+## 3. Recursive method — understand the code
+
+First, let's look at the code with correct Python indentation.
+
+```
+steps = 0def fib_recursive(n):    global steps    steps += 1    if n <= 1:        return n    return fib_recursive(n-1) + fib_recursive(n-2)
+```
+
+Let's understand every line.
+
+### Line 1: `steps = 0`
+
+```
+steps = 0
+```
+
+- We create a variable called `steps`.
+- It starts from 0.
+- It counts how many times the recursive function is called.
+
+Think of it as a counter.
+
+### Line 2: `def fib_recursive(n):`
+
+```
+def fib_recursive(n):
+```
+
+- `def` is used to create a function in Python.
+- `fib_recursive` is the function name.
+- `n` is the input given to the function.
+
+For example, if we call:
+
+```
+fib_recursive(5)
+```
+
+Then the value of `n` is 5.
+
+### Line 3: `global steps`
+
+```
+global steps
+```
+
+This is important.
+
+Normally, a variable created inside a function is local to that function.
+
+But we want to use the `steps` variable created outside the function.
+
+So we write:
+
+```
+global steps
+```
+
+It tells Python:
+
+"Use the same `steps` variable that was created outside this function."
+
+### Line 4: `steps += 1`
+
+```
+steps += 1
+```
+
+This means:
+
+```
+steps = steps + 1
+```
+
+Every time the function runs, the counter increases by 1.
+
+For example:
+
+| Function call | Steps |
+| ------------- | ----- |
+| First call    | 1     |
+| Second call   | 2     |
+| Third call    | 3     |
+| Fourth call   | 4     |
+
+This helps us count the total number of recursive function calls.
+
+### Line 5 and 6: The base condition
+
+```
+if n <= 1:    return n
+```
+
+This is called the base condition or base case.
+
+It tells the function when to stop calling itself.
+
+Remember:
+
+- If `n = 0`, return 0.
+- If `n = 1`, return 1.
+
+Why do we need this?
+
+Because if a function keeps calling itself without stopping, it will continue indefinitely until Python raises an error.
+
+The base condition stops that process.
+
+### Line 7: The main recursive logic
+
+```
+return fib_recursive(n-1) + fib_recursive(n-2)
+```
+
+This is the most important line.
+
+It follows the Fibonacci formula:
+
+\\[ F(n)=F(n-1)+F(n-2) \\]
+
+In simple words:
+
+Current Fibonacci number = Previous number + Number before previous.
+
+For example, when `n = 5`:
+
+```
+fib_recursive(5)
+```
+
+It becomes:
+
+```
+fib_recursive(4) + fib_recursive(3)
+```
+
+And each of those calls breaks into smaller calls until it reaches 0 or 1.
+
+### How recursion works visually
+
+For `fib_recursive(5)`, the function calls look like this:
+
+## Recursive call tree for n = 5
+
+fib(5)
+
+fib(4)
+
+fib(3)
+
+Each call splits into two smaller calls until it reaches 1 or 0.
+
+For example, fib(4) calls fib(3) and fib(2). The same smaller calculations can happen more than once.
+
+Let's calculate the result:
+
+- `fib(0) = 0`
+- `fib(1) = 1`
+- `fib(2) = 1 + 0 = 1`
+- `fib(3) = 1 + 1 = 2`
+- `fib(4) = 2 + 1 = 3`
+- `fib(5) = 3 + 2 = 5`
+
+So the answer is 5.
+
+## 4. Non-Recursive method — understand the code
+
+Now let's understand the second method.
+
+```
+def fib_iterative(n):    a, b = 0, 1    count = 0    for i in range(n):        count += 1        a, b = b, a+b    return (0 if n == 0 else a), count
+```
+
+This method uses a `for` loop instead of calling the function again and again.
+
+### Line 1: Function definition
+
+```
+def fib_iterative(n):
+```
+
+We create a function named `fib_iterative`.
+
+It accepts `n` as input.
+
+### Line 2: `a, b = 0, 1`
+
+```
+a, b = 0, 1
+```
+
+This is called multiple assignment.
+
+It means:
+
+```
+a = 0b = 1
+```
+
+We use two variables to store the previous two Fibonacci numbers.
+
+- `a` stores the first number.
+- `b` stores the second number.
+
+Initially:
+
+# 0
+
+a
+
+# 1
+
+b
+
+### Line 3: `count = 0`
+
+```
+count = 0
+```
+
+This variable counts how many times the loop runs.
+
+### Line 4: The for loop
+
+```
+for i in range(n):
+```
+
+This means the loop will run `n` times.
+
+For example, if:
+
+```
+n = 5
+```
+
+Then:
+
+```
+range(5)
+```
+
+produces:
+
+```
+0, 1, 2, 3, 4
+```
+
+That means the loop runs 5 times.
+
+### Line 5: `count += 1`
+
+```
+count += 1
+```
+
+Every time the loop runs, the count increases by 1.
+
+If the loop runs 5 times, the final count is 5.
+
+### Line 6: The most important line
+
+```
+a, b = b, a+b
+```
+
+This calculates the next Fibonacci number.
+
+It means:
+
+- New `a` becomes the old `b`.
+- New `b` becomes the sum of old `a` and old `b`.
+
+Python evaluates the right side first, so both new values are calculated using the old values.
+
+For example, if:
+
+```
+a = 0b = 1
+```
+
+After this statement:
+
+```
+a = 1b = 1
+```
+
+The next time:
+
+```
+a = 1b = 2
+```
+
+And so on.
+
+### Line 7: Return statement
+
+```
+return (0 if n == 0 else a), count
+```
+
+This returns two values:
+
+1. The Fibonacci number.
+2. The number of loop iterations.
+
+The expression:
+
+```
+0 if n == 0 else a
+```
+
+means:
+
+- If `n` is 0, return 0.
+- Otherwise, return `a`.
+
+Why is this needed?
+
+Because when `n = 0`, the loop doesn't run at all. In that case, `a` is already 0, but this condition makes the special case explicit.
+
+## 5. Dry run of the Non-Recursive method
+
+A dry run means executing the code manually, step by step, without running it on a computer.
+
+Let's take:
+
+```
+n = 5
+```
+
+Initially:
+
+```
+a = 0b = 1count = 0
+```
+
+Now the loop runs 5 times.
+
+| Loop | `a` before | `b` before | New `a` | New `b` | Count |
+| ---- | ---------- | ---------- | ------- | ------- | ----- |
+| 1    | 0          | 1          | 1       | 1       | 1     |
+| 2    | 1          | 1          | 1       | 2       | 2     |
+| 3    | 1          | 2          | 2       | 3       | 3     |
+| 4    | 2          | 3          | 3       | 5       | 4     |
+| 5    | 3          | 5          | 5       | 8       | 5     |
+
+After the loop:
+
+```
+a = 5b = 8count = 5
+```
+
+The function returns:
+
+```
+(5, 5)
+```
+
+So:
+
+- Fibonacci number = 5
+- Loop count = 5
+
+Notice: The value of `a` is the Fibonacci number at position 5.
+
+## 6. Main program — how both methods are called
+
+Now let's understand the main part.
+
+```
+n = int(input("Enter number: "))steps = 0r = fib_recursive(n)i, count = fib_iterative(n)print("Recursive Fibonacci:", r)print("Recursive Step Count:", steps)print("Non-Recursive Fibonacci:", i)print("Non-Recursive Step Count:", count)print("Recursive Time Complexity: O(2^n)")print("Iterative Time Complexity: O(n)")
+```
+
+Line 1:
+
+```
+n = int(input("Enter number: "))
+```
+
+- `input()` takes input from the user.
+- `int()` converts that input into an integer.
+- The entered number is stored in `n`.
+
+For example, if you enter 5, then `n = 5`.
+
+Line 2:
+
+```
+steps = 0
+```
+
+We reset the recursive counter to zero before calling the recursive function.
+
+Line 3:
+
+```
+r = fib_recursive(n)
+```
+
+This calls the recursive function.
+
+If `n = 5`:
+
+- The function calculates Fibonacci number 5.
+- The answer is stored in `r`.
+- The number of function calls is stored in `steps`.
+
+So:
+
+```
+r = 5
+```
+
+Line 4:
+
+```
+i, count = fib_iterative(n)
+```
+
+This calls the iterative function.
+
+It returns two values, so we store them in two variables:
+
+- `i` stores the Fibonacci number.
+- `count` stores the number of loop iterations.
+
+For `n = 5`:
+
+```
+i = 5count = 5
+```
+
+Remaining lines:
+
+The `print()` statements display the answers and time complexities.
+
+## 7. Complete program output
+
+If you enter `5`, the output will be:
+
+```
+Enter number: 5
+Recursive Fibonacci: 5
+Recursive Step Count: 15
+Non-Recursive Fibonacci: 5
+Non-Recursive Step Count: 5
+Recursive Time Complexity: O(2^n)
+Iterative Time Complexity: O(n)
+```
+
+Why is the recursive step count 15?
+
+Because the recursive function gets called 15 times in total when calculating `fib_recursive(5)`, including calls that return 0 or 1.
+
+Why is the iterative step count 5?
+
+Because the `for` loop runs exactly 5 times.
+
+Important: Your recursive counter counts function calls, while your iterative counter counts loop iterations. They are two different kinds of steps.
+
+## 8. Time complexity — important for DAA viva
+
+Time complexity tells us how the running work of an algorithm increases when the input size increases.
+
+### Recursive method: O(2ⁿ)
+
+Why?
+
+Because every non-base recursive call makes two more calls:
+
+```
+fib_recursive(n-1) + fib_recursive(n-2)
+```
+
+So the number of calls grows very quickly as `n` increases.
+
+### Non-Recursive method: O(n)
+
+Why?
+
+Because the `for` loop runs exactly `n` times.
+
+If `n = 5`, it runs 5 times.
+
+If `n = 100`, it runs 100 times.
+
+The work increases in proportion to `n`.
+
+\\[ \text{Learn more} \\]
+
+Give feedback
+
+### Comparison of both methods
+
+| Point            | Recursive             | Non-Recursive      |
+| ---------------- | --------------------- | ------------------ |
+| Technique        | Function calls itself | Uses a loop        |
+| Main concept     | Recursion             | Iteration          |
+| Variables        | `n`, `steps`          | `a`, `b`, `count`  |
+| Time complexity  | O(2ⁿ)                 | O(n)               |
+| Space complexity | O(n)                  | O(1)               |
+| Speed            | Slower for large n    | Faster for large n |
+
+Space complexity:
+
+- Recursive: O(n), because function calls are stored on the call stack.
+- Iterative: O(1), because it uses a fixed number of variables.
+
+The iterative method is generally better for calculating a single Fibonacci number because it avoids repeated calculations.
+
+## 9. Complete theory for your practical file and viva
+
+You can learn these points for your practical exam.
+
+Aim: To implement the Fibonacci series using recursive and non-recursive methods and compare their step counts and time complexities.
+
+Theory:
+
+1. The Fibonacci series is a sequence in which each number is the sum of the previous two numbers.
+2. The first two numbers are 0 and 1.
+3. A recursive method is a method in which a function calls itself.
+4. A non-recursive method uses loops to solve a problem without calling the same function again.
+5. The recursive method uses a base condition to stop the function calls.
+6. The iterative method uses two variables to store the previous two Fibonacci numbers.
+7. Time complexity measures how the running time grows with input size.
+
+Fibonacci formula:
+
+\\[ F(n)=F(n-1)+F(n-2) \\]
+
+With the base conditions:
+
+\\[ F(0)=0,\quad F(1)=1 \\]
+
+Result: The Fibonacci number was calculated using both recursive and non-recursive methods. Their step counts and time complexities were compared.
+
+## 10. Important viva questions and answers
+
+Try to understand these answers instead of just memorizing them.
+
+Q1. What is the Fibonacci series?
+
+It is a series in which every number is the sum of the previous two numbers.
+
+Example: `0, 1, 1, 2, 3, 5, 8`.
+
+Q2. What is recursion?
+
+Recursion is a technique in which a function calls itself.
+
+Q3. What is iteration?
+
+Iteration means repeating a set of statements using loops such as `for` and `while`.
+
+Q4. What is a base condition?
+
+A base condition is the condition that stops recursive function calls.
+
+In our code:
+
+```
+if n <= 1:    return n
+```
+
+Q5. Why do we use `global steps`?
+
+To access and update the `steps` variable that was created outside the function.
+
+Q6. Why do we use `steps += 1`?
+
+To count how many times the recursive function is called.
+
+Q7. Why do we use `a, b = b, a+b`?
+
+To update the two previous Fibonacci numbers and calculate the next number.
+
+Q8. What is the time complexity of the recursive method?
+
+O(2ⁿ), a commonly used upper-bound description for this simple recursive implementation.
+
+Q9. What is the time complexity of the iterative method?
+
+O(n), because the loop runs n times.
+
+Q10. Which method is better and why?
+
+The iterative method is generally better for this problem because it takes O(n) time and O(1) extra space. The recursive method repeats calculations.
+
+Q11. What is the difference between time complexity and space complexity?
+
+- Time complexity tells us how much work an algorithm performs.
+- Space complexity tells us how much extra memory it needs.
+
+Q12. What happens when n = 0?
+
+Both methods return 0. The iterative method runs zero times.
+
+## 11. Test your understanding
+
+Try answering these three questions. I'll check your answers and explain anything you find difficult.
+
+Mini practical quiz
+
+3 questions
+
+1\. If n = 5, what is the Fibonacci number returned by both methods?
+
+3
+
+5
+
+8
+
+13
+
+2\. What does the base condition do in recursion?
+
+Starts the loop
+
+Stops further recursive calls
+
+Counts the steps
+
+Sorts the numbers
+
+3\. If n = 5, how many times does the iterative loop run?
+
+2
+
+5
+
+10
+
+15
+
+Check my answers
+
+One final thing to remember for your exam:
+
+- Recursive = function calls itself.
+- Non-recursive = loop does the work.
+- Base condition = stops recursion.
+- `steps` = counts recursive function calls.
+- `count` = counts loop iterations.
+- Recursive complexity = O(2ⁿ).
+- Iterative complexity = O(n).
+
+If you understand these seven points and can explain the dry run for `n = 5`, you have understood the main logic of this practical.
+
+*******************************2nd Jobs theory
+Imagine you have 5 jobs. Every job takes 1 unit of time to complete.
+
+Each job has three things:
+
+1. Job name – J1, J2, J3, etc.
+2. Deadline – The time by which the job must be completed.
+3. Profit – The money earned after completing the job.
+
+Our aim is to select jobs in such a way that we get maximum profit without missing deadlines.
+
+Example:
+
+| Job | Deadline | Profit |
+| --- | -------- | ------ |
+| J1  | 2        | 100    |
+| J2  | 1        | 19     |
+| J3  | 2        | 27     |
+| J4  | 1        | 25     |
+| J5  | 3        | 15     |
+
+We want to find which jobs should be completed to earn maximum profit.
+
+# 2. Understand the complete code
+
+## Part 1: Creating the jobs list
+
+```
+jobs = [
+    ("J1", 2, 100),
+    ("J2", 1, 19),
+    ("J3", 2, 27),
+    ("J4", 1, 25),
+    ("J5", 3, 15)
+]
+```
+
+Explanation:
+
+Here, we create a list called `jobs`.
+
+Each job contains three values:
+
+```
+("J1", 2, 100)
+```
+
+- `"J1"` = Job name.
+- `2` = Deadline.
+- `100` = Profit.
+
+Let's understand the complete list:
+
+| Job | Deadline | Profit |
+| --- | -------- | ------ |
+| J1  | 2        | 100    |
+| J2  | 1        | 19     |
+| J3  | 2        | 27     |
+| J4  | 1        | 25     |
+| J5  | 3        | 15     |
+
+Remember: We use parentheses `()` to group the information of each job.
+
+## Part 2: Sorting jobs by profit
+
+```
+jobs.sort(key=lambda x: x[2], reverse=True)
+```
+
+This is the most important line in the Greedy method.
+
+Let's break it into small parts.
+
+What is sorting?
+
+Sorting means arranging data in a particular order.
+
+Here, we want to arrange jobs according to their profit, from highest to lowest.
+
+What is `lambda x`?
+
+It is a small function used to select a value from each job.
+
+For example:
+
+```
+x[0]  # Job name
+x[1]  # Deadline
+x[2]  # Profit
+```
+
+We use:
+
+```
+key=lambda x: x[2]
+```
+
+This tells Python to sort according to profit.
+
+What is `reverse=True`?
+
+It arranges the jobs in descending order (highest to lowest).
+
+After sorting:
+
+| Position | Job | Deadline | Profit |
+| -------- | --- | -------- | ------ |
+| 1        | J1  | 2        | 100    |
+| 2        | J3  | 2        | 27     |
+| 3        | J4  | 1        | 25     |
+| 4        | J2  | 1        | 19     |
+| 5        | J5  | 3        | 15     |
+
+
+
+Important
+
+&#x20;We select the highest-profit job first because we are using the Greedy method.
+
+
+
+## Part 3: Finding maximum deadline
+
+```
+max_deadline = max(job[1] for job in jobs)
+```
+
+What does this line do?
+
+It finds the largest deadline among all jobs.
+
+Remember:
+
+```
+job[0] = Job name
+job[1] = Deadline
+job[2] = Profit
+```
+
+Our deadlines are:
+
+```
+2, 1, 2, 1, 3
+```
+
+The maximum deadline is:
+
+```
+max_deadline = 3
+```
+
+Why do we need it?
+
+Because we need 3 time slots to schedule jobs.
+
+## Part 4: Creating empty slots
+
+```
+slots = [None] * max_deadline
+```
+
+Since maximum deadline is 3:
+
+```
+slots = [None, None, None]
+```
+
+What is `None`?
+
+`None` means an empty value.
+
+Think of these slots as three empty boxes.
+
+Initially empty time slots
+
+Slot 1
+
+# —
+
+Empty
+
+Slot 2
+
+# —
+
+Empty
+
+Slot 3
+
+# —
+
+Empty
+
+## Part 5: Initialize total profit
+
+```
+total_profit = 0
+```
+
+We create a variable to store the total profit.
+
+Initially, no jobs have been completed.
+
+Therefore:
+
+```
+total_profit = 0
+```
+
+Whenever we schedule a job, we add its profit to this variable.
+
+## Part 6: Main for loop
+
+```
+for job in jobs:
+```
+
+This loop checks every job one by one.
+
+Remember, our jobs are already sorted according to profit.
+
+The order is:
+
+```
+J1 → J3 → J4 → J2 → J5
+```
+
+Python first selects J1, then J3, then J4, and so on.
+
+## Part 7: Extracting job details
+
+```
+name, deadline, profit = job
+```
+
+This statement separates the three values of a job into individual variables.
+
+For example, when:
+
+```
+job = ("J1", 2, 100)
+```
+
+Python automatically assigns:
+
+```
+name = "J1"
+deadline = 2
+profit = 100
+```
+
+This is called unpacking.
+
+## Part 8: Checking available time slots
+
+```
+for j in range(deadline - 1, -1, -1):
+```
+
+This is another important line.
+
+It checks available slots from the latest possible slot backwards.
+
+Why backwards?
+
+Because we want to schedule a job as late as possible before its deadline, keeping earlier slots free for jobs with smaller deadlines.
+
+Let's understand with J1.
+
+J1 has deadline 2.
+
+```
+range(2 - 1, -1, -1)
+```
+
+It becomes:
+
+```
+range(1, -1, -1)
+```
+
+This produces:
+
+```
+1, 0
+```
+
+Remember Python indexing starts from zero.
+
+| Python index | Actual time slot |
+| ------------ | ---------------- |
+| 0            | Slot 1           |
+| 1            | Slot 2           |
+| 2            | Slot 3           |
+
+Therefore, J1 checks Slot 2 first, then Slot 1.
+
+## Part 9: Checking whether a slot is empty
+
+```
+if slots[j] is None:
+```
+
+This condition checks whether the current slot is empty.
+
+- If empty → Schedule the job.
+- If occupied → Check the previous slot.
+
+Example:
+
+```
+slots = [None, None, None]
+```
+
+Here, all slots are empty.
+
+Therefore, the condition is true.
+
+## Part 10: Assigning the job
+
+```
+slots[j] = name
+```
+
+This statement places the job into the available slot.
+
+For example:
+
+```
+slots[1] = "J1"
+```
+
+Now:
+
+```
+slots = [None, "J1", None]
+```
+
+## Part 11: Adding profit
+
+```
+total_profit += profit
+```
+
+This means:
+
+```
+total_profit = total_profit + profit
+```
+
+If J1 has profit 100:
+
+```
+total_profit = 0 + 100
+total_profit = 100
+```
+
+## Part 12: Breaking the loop
+
+```
+break
+```
+
+`break` stops the inner loop immediately after a job is successfully scheduled.
+
+Why?
+
+Because we only need to schedule each job once.
+
+# 3. Complete dry run (most important)
+
+Now let's execute your program manually.
+
+Initial data after sorting
+
+| Job | Deadline | Profit |
+| --- | -------- | ------ |
+| J1  | 2        | 100    |
+| J3  | 2        | 27     |
+| J4  | 1        | 25     |
+| J2  | 1        | 19     |
+| J5  | 3        | 15     |
+
+Maximum deadline = 3.
+
+Initial slots:
+
+```
+[None, None, None]
+```
+
+Initial profit = 0.
+
+## Step 1: Schedule J1
+
+- Job = J1
+- Deadline = 2
+- Profit = 100
+- Check Slot 2 (index 1).
+- Slot 2 is empty.
+- Place J1 in Slot 2.
+
+After scheduling J1
+
+Slot 1
+
+## —
+
+Slot 2
+
+## J1
+
+Slot 3
+
+## —
+
+Total profit = 100
+
+## Step 2: Schedule J3
+
+- Job = J3
+- Deadline = 2
+- Profit = 27
+- Check Slot 2 → Already occupied by J1.
+- Check Slot 1 → Empty.
+- Place J3 in Slot 1.
+
+After scheduling J3
+
+Slot 1
+
+## J3
+
+Slot 2
+
+## J1
+
+Slot 3
+
+## —
+
+Total profit = 100 + 27 = 127
+
+## Step 3: Schedule J4
+
+- Job = J4
+- Deadline = 1
+- Profit = 25
+- Check Slot 1 → Already occupied by J3.
+- No other slot is available before its deadline.
+- Reject J4.
+
+Total profit remains 127.
+
+## Step 4: Schedule J2
+
+- Job = J2
+- Deadline = 1
+- Profit = 19
+- Check Slot 1 → Already occupied.
+- No slot available.
+- Reject J2.
+
+Total profit remains 127.
+
+## Step 5: Schedule J5
+
+- Job = J5
+- Deadline = 3
+- Profit = 15
+- Check Slot 3 → Empty.
+- Place J5 in Slot 3.
+
+Final schedule
+
+Slot 1
+
+## J3
+
+Slot 2
+
+## J1
+
+Slot 3
+
+## J5
+
+# 142
+
+Maximum total profit = 27 + 100 + 15 = 142
+
+# 4. Final output
+
+```
+Scheduled Jobs: ['J3', 'J1', 'J5']
+Total Profit: 142
+```
+
+# 5. Complete code with simple comments
+
+This is the version I recommend writing in your practical exam.
+
+```
+
+jobs = [
+    ("J1", 2, 100),
+    ("J2", 1, 19),
+    ("J3", 2, 27),
+    ("J4", 1, 25),
+    ("J5", 3, 15)
+]
+
+# Sort jobs by profit
+jobs.sort(key=lambda x: x[2], reverse=True)
+
+# Find maximum deadline
+max_deadline = max(job[1] for job in jobs)
+
+# Create empty slots
+slots = [None] * max_deadline
+total_profit = 0
+
+# Schedule each job
+for job in jobs:
+    name, deadline, profit = job
+
+    for j in range(deadline - 1, -1, -1):
+        if slots[j] is None:
+            slots[j] = name
+            total_profit += profit
+            break
+
+print("Scheduled Jobs:", slots)
+print("Total Profit:", total_profit)
+
+```
+
+# 6. Theory for practical examination
+
+Aim: To implement Job Sequencing with Deadlines using the Greedy Method.
+
+Theory: Job Sequencing is a scheduling problem in which jobs are selected based on their deadlines and profits. Each job requires one unit of time. The Greedy method selects jobs in descending order of profit and places each job in the latest available time slot before its deadline to maximize total profit.
+
+Algorithm:
+
+1. Start.
+2. Create a list of jobs with their deadlines and profits.
+3. Sort jobs in descending order of profit.
+4. Find the maximum deadline.
+5. Create empty time slots.
+6. Select each job one by one.
+7. Find the latest available slot before its deadline.
+8. If a slot is available, schedule the job and add its profit.
+9. Display scheduled jobs and total profit.
+10. Stop.
+
+Time Complexity: O(n²), where n is the number of jobs.
+
+Space Complexity: O(n), for storing the time slots (excluding the input jobs).
+
+Conclusion: Thus, Job Sequencing with Deadlines is successfully implemented using the Greedy Method to obtain maximum profit.
+
+# 7. Important viva questions
+
+| Question                   | Easy answer                                            |
+| -------------------------- | ------------------------------------------------------ |
+| What is Job Sequencing?    | Scheduling jobs to maximize profit.                    |
+| Which technique is used?   | Greedy Method.                                         |
+| What is a deadline?        | Last time to complete a job.                           |
+| What is profit?            | Money earned after completing a job.                   |
+| Why sort jobs?             | To select higher-profit jobs first.                    |
+| What is `None`?            | It represents an empty slot.                           |
+| What is `break`?           | It stops the current loop.                             |
+| Why check slots backwards? | To find the latest available slot before the deadline. |
+| What is time complexity?   | O(n²).                                                 |
+| What is the objective?     | Maximize total profit.                                 |
+
+
+
+
+
+****************************************************************************************fractional knsapstack
+
+# Practical 3: Fractional Knapsack Using Greedy Method
+
+Let's understand your code line by line in very simple language, assuming you are a beginner in Python.
+
+## 1. First, understand the problem
+
+In the Fractional Knapsack problem, we have:
+
+- Items with different weights.
+- Each item gives us some profit.
+- A bag has a limited capacity.
+- We want to get the maximum profit.
+
+The important rule is: We can take a fraction (part) of an item if the full item does not fit.
+
+For example, if an item weighs 30 kg but only 20 kg of space is left, we can take 20 kg of that item.
+
+## 2. Your code explained line by line
+
+### Step 1: Define profit, weight and capacity
+
+```
+profit = [60, 100, 120]
+weight = [10, 20, 30]
+capacity = 50
+```
+
+Here:
+
+- `profit` stores the profit of each item.
+- `weight` stores the weight of each item.
+- `capacity` stores the maximum weight the bag can hold.
+
+| Item   | Profit | Weight |
+| ------ | ------ | ------ |
+| Item 1 | 60     | 10     |
+| Item 2 | 100    | 20     |
+| Item 3 | 120    | 30     |
+
+The bag can carry a maximum of 50 kg.
+
+### Step 2: Find the number of items
+
+```
+n = len(profit)
+```
+
+- `len()` counts the number of elements in a list.
+- There are 3 items.
+- Therefore, `n = 3`.
+
+### Step 3: Create an empty ratio list
+
+```
+ratio = []
+```
+
+We create an empty list called `ratio`.
+
+It will store the profit-to-weight ratio of each item.
+
+Formula:
+
+\\[ Ratio = \frac{Profit}{Weight} \\]
+
+### Step 4: Calculate the profit-to-weight ratio
+
+```
+for i in range(n):
+    ratio.append(profit[i] / weight[i])
+```
+
+Let's understand each part:
+
+- `for i in range(n)` repeats the loop 3 times.
+- `profit[i]` gets the profit of an item.
+- `weight[i]` gets the weight of that item.
+- `append()` adds the calculated ratio to the list.
+
+Dry run:
+
+| Item   | Calculation | Ratio |
+| ------ | ----------- | ----- |
+| Item 1 | 60 / 10     | 6     |
+| Item 2 | 100 / 20    | 5     |
+| Item 3 | 120 / 30    | 4     |
+
+After this loop:
+
+```
+ratio = [6, 5, 4]
+```
+
+Why do we calculate the ratio?
+
+Because we want to select the item that gives the highest profit per unit of weight.
+
+### Step 5: Sort items according to ratio
+
+```
+items = sorted(range(n), key=lambda i: ratio[i], reverse=True)
+```
+
+This is the most important line. Let's break it down.
+
+- `range(n)` gives item indexes: `0, 1, 2`.
+- `sorted()` sorts these indexes.
+- `key=lambda i: ratio[i]` tells Python to sort using the ratio of each item.
+- `reverse=True` sorts from highest to lowest.
+
+Our ratios are:
+
+```
+ratio = [6, 5, 4]
+```
+
+So the sorted order is:
+
+```
+items = [0, 1, 2]
+```
+
+This means:
+
+1. Item 1 (ratio 6)
+2. Item 2 (ratio 5)
+3. Item 3 (ratio 4)
+
+Remember: Python indexes start from 0, so index 0 means Item 1.
+
+### Step 6: Initialize total profit
+
+```
+total_profit = 0
+```
+
+Initially, our profit is zero because we have not selected any item.
+
+### Step 7: Start selecting items
+
+```
+for i in items:
+```
+
+This loop visits the items in their sorted order.
+
+First Item 1, then Item 2, and finally Item 3.
+
+### Step 8: Check whether the full item fits
+
+```
+if weight[i] <= capacity:
+```
+
+This condition checks whether the item's weight is less than or equal to the remaining capacity.
+
+If the item fits, we take the complete item.
+
+```
+total_profit += profit[i]
+capacity -= weight[i]
+```
+
+These two statements mean:
+
+- Add the item's profit to `total_profit`.
+- Subtract the item's weight from the remaining capacity.
+
+### Step 9: If the full item does not fit
+
+```
+else:
+    total_profit += ratio[i] * capacity
+    capacity = 0
+    break
+```
+
+This part runs when the complete item cannot fit inside the bag.
+
+Let's understand:
+
+- `ratio[i] * capacity` calculates the profit from the fraction we can take.
+- `capacity = 0` means the bag is now full.
+- `break` stops the loop because no more items can be added.
+
+### Step 10: Print the result
+
+```
+print("Maximum Profit:", total_profit)
+```
+
+This displays the maximum profit obtained.
+
+## 3. Complete dry run (most important for practical exam)
+
+Initial values:
+
+- Capacity = 50
+- Total Profit = 0
+- Sorted items = Item 1, Item 2, Item 3
+
+Iteration 1: Select Item 1
+
+- Weight = 10 kg
+- Profit = 60
+- Remaining capacity = 50 kg
+
+Since 10 is less than 50, we take the full item.
+
+\\[ Profit = 0+60=60 \\]
+
+Remaining capacity = 50 − 10 = 40 kg
+
+Item 1 selected completely
+
+Iteration 2: Select Item 2
+
+- Weight = 20 kg
+- Profit = 100
+- Remaining capacity = 40 kg
+
+Since 20 is less than 40, we take the full item.
+
+\\[ Profit = 60+100=160 \\]
+
+Remaining capacity = 40 − 20 = 20 kg
+
+Item 2 selected completely
+
+Iteration 3: Select Item 3
+
+- Weight = 30 kg
+- Profit = 120
+- Remaining capacity = 20 kg
+
+Since 30 is greater than 20, the full item cannot fit.
+
+So, we take only 20 kg out of 30 kg.
+
+Ratio of Item 3 = 120 / 30 = 4
+
+\\[ Fractional\ Profit = 4 \times 20 = 80 \\]
+
+\\[ Total\ Profit = 160+80=240 \\]
+
+Remaining capacity = 0 kg.
+
+20 kg of Item 3 selected
+
+## 4. Final output
+
+```
+Maximum Profit: 240.0
+```
+
+Profit contributed by each selected item
+
+Total profit = 240.
+
+₹0₹30₹60₹90₹120Item 1Item 2Item 3 (fraction)
+
+## 5. Important concepts for viva
+
+| Concept             | Meaning                                       |
+| ------------------- | --------------------------------------------- |
+| Greedy method       | Select the best available choice at each step |
+| Fractional Knapsack | We can take a fraction of an item             |
+| Ratio               | Profit divided by weight                      |
+| `append()`          | Adds an element to a list                     |
+| `sorted()`          | Sorts elements                                |
+| `reverse=True`      | Sorts in descending order                     |
+| `break`             | Stops the loop                                |
+| `len()`             | Counts list elements                          |
+
+Time complexity:
+
+- Calculating ratios: \\(O(n)\\)
+- Sorting: \\(O(n\log n)\\)
+- Selecting items: \\(O(n)\\)
+- Overall: \\(O(n\log n)\\)
+
+Space complexity: \\(O(n)\\), for the ratio and sorted-index lists.
+
+
+
+
+******************************************************************************0/1 ksnapstack
+
+# Practical 4: 0/1 Knapsack Using Dynamic Programming
+
+Let's understand your code step by step in very simple English, just like we learned Fractional Knapsack.
+
+## 1. First, understand the problem
+
+In the 0/1 Knapsack problem:
+
+- We have some items.
+- Every item has a weight and profit.
+- Our bag has a limited capacity.
+- We want to get maximum profit.
+
+Important rule: We can either take the complete item (1) or leave it (0). We cannot take half of an item.
+
+For example:
+
+| Item   | Profit | Weight |
+| ------ | ------ | ------ |
+| Item 1 | 60     | 10     |
+| Item 2 | 100    | 20     |
+| Item 3 | 120    | 30     |
+
+Bag capacity = 50 kg.
+
+## 2. Understand the code line by line
+
+### Step 1: Store profit, weight and capacity
+
+```
+profit = [60, 100, 120]
+weight = [10, 20, 30]
+capacity = 50
+```
+
+- `profit` stores the profit of each item.
+- `weight` stores the weight of each item.
+- `capacity` stores the maximum weight of the bag.
+
+### Step 2: Count the number of items
+
+```
+n = len(profit)
+```
+
+`len()` counts the number of elements in the list.
+
+There are 3 items.
+
+Therefore:
+
+```
+n = 3
+```
+
+### Step 3: Create the DP table
+
+```
+dp = [
+    [0 for x in range(capacity + 1)]
+    for y in range(n + 1)
+]
+```
+
+Most important line
+
+First, understand what DP means.
+
+DP = Dynamic Programming
+
+It means solving a big problem by solving smaller problems and storing their answers.
+
+Here, we create a table called `dp` to store the maximum profit for different numbers of items and different bag capacities.
+
+Let's break the code into two parts.
+
+Part A:
+
+```
+[0 for x in range(capacity + 1)]
+```
+
+- `capacity = 50`
+- `range(capacity + 1)` means 0 to 50.
+- We create 51 zeros.
+
+Part B:
+
+```
+for y in range(n + 1)
+```
+
+- `n = 3`
+- `range(n + 1)` means 0 to 3.
+- We create 4 rows.
+
+So our DP table has:
+
+- 4 rows (0 to 3 items).
+- 51 columns (0 to 50 kg capacity).
+
+Every value is initially zero.
+
+For understanding, here is a smaller example of the table structure:
+
+| Items / Capacity | 0 | 1 | 2 | 3 | ... |
+| ---------------- | - | - | - | - | --- |
+| 0 items          | 0 | 0 | 0 | 0 | ... |
+| 1 item           | 0 | 0 | 0 | 0 | ... |
+| 2 items          | 0 | 0 | 0 | 0 | ... |
+| 3 items          | 0 | 0 | 0 | 0 | ... |
+
+Why do we use 0 initially?
+
+Because if there are no items or the bag capacity is zero, the maximum profit is zero.
+
+### Step 4: Start the outer loop
+
+```
+for i in range(1, n + 1):
+```
+
+This loop selects items one by one.
+
+Since `n = 3`, it runs three times:
+
+- First iteration: `i = 1`
+- Second iteration: `i = 2`
+- Third iteration: `i = 3`
+
+### Step 5: Start the inner loop
+
+```
+for w in range(1, capacity + 1):
+```
+
+This loop checks different bag capacities from 1 to 50.
+
+For example:
+
+- `w = 1`: Bag capacity is 1 kg.
+- `w = 2`: Bag capacity is 2 kg.
+- `w = 3`: Bag capacity is 3 kg.
+- ...
+- `w = 50`: Bag capacity is 50 kg.
+
+So the program checks different combinations of items and capacities.
+
+### Step 6: Check whether the item fits
+
+```
+if weight[i - 1] <= w:
+```
+
+This condition checks whether the current item's weight is less than or equal to the current bag capacity.
+
+Why `i - 1`?
+
+Python list indexing starts from zero.
+
+| Item number (`i`) | List index (`i-1`) |
+| ----------------- | ------------------ |
+| 1                 | 0                  |
+| 2                 | 1                  |
+| 3                 | 2                  |
+
+For example, when `i = 1`:
+
+```
+weight[i - 1]
+weight[0]
+```
+
+The weight is 10.
+
+### Step 7: Calculate maximum profit
+
+```
+dp[i][w] = max(
+    profit[i - 1] + dp[i - 1][w - weight[i - 1]],
+    dp[i - 1][w]
+)
+```
+
+Most important formula
+
+This line compares two choices.
+
+Choice 1: Include the current item
+
+```
+profit[i - 1] + dp[i - 1][w - weight[i - 1]]
+```
+
+It means:
+
+- Take the profit of the current item.
+- Add the maximum profit possible with the remaining capacity.
+
+Choice 2: Exclude the current item
+
+```
+dp[i - 1][w]
+```
+
+It means:
+
+- Do not take the current item.
+- Keep the maximum profit calculated without it.
+
+What does `max()` do?
+
+It selects whichever choice gives more profit.
+
+In simple words:
+
+\\[ DP[i][w] = \max(\text{Include},\text{Exclude}) \\]
+
+### Step 8: If the item does not fit
+
+```
+else:
+    dp[i][w] = dp[i - 1][w]
+```
+
+If the item's weight is greater than the bag capacity, we cannot take it.
+
+Therefore, we simply copy the previous maximum profit.
+
+### Step 9: Print the answer
+
+```
+print("Maximum Profit:", dp[n][capacity])
+```
+
+Here:
+
+- `n = 3`
+- `capacity = 50`
+
+Therefore:
+
+```
+dp[3][50]
+```
+
+This gives the maximum profit using all 3 items with a bag capacity of 50.
+
+## 3. Complete dry run
+
+Let's understand how the program calculates the answer.
+
+Initial data:
+
+| Item | Profit | Weight |
+| ---- | ------ | ------ |
+| 1    | 60     | 10     |
+| 2    | 100    | 20     |
+| 3    | 120    | 30     |
+
+Bag capacity = 50.
+
+Iteration 1: Consider Item 1
+
+- Weight = 10
+- Profit = 60
+
+If capacity is 10 or more, we can take Item 1 and earn 60 profit.
+
+For capacity 10:
+
+\\[ dp[1][10] = \max(60+0,0)=60 \\]
+
+For capacity 20:
+
+\\[ dp[1][20] = \max(60+0,0)=60 \\]
+
+The same applies to all capacities from 10 to 50.
+
+Iteration 2: Consider Item 2
+
+- Weight = 20
+- Profit = 100
+
+For capacity 20:
+
+\\[ dp[2][20] = \max(100+0,60)=100 \\]
+
+For capacity 30:
+
+\\[ dp[2][30] = \max(100+60,60)=160 \\]
+
+We can take Item 1 and Item 2 together.
+
+Iteration 3: Consider Item 3
+
+- Weight = 30
+- Profit = 120
+
+For capacity 30:
+
+\\[ dp[3][30] = \max(120+0,160)=160 \\]
+
+We choose the better option: 160.
+
+For capacity 50:
+
+\\[ dp[3][50] = \max(120+100,160) \\]
+
+\\[ = \max(220,160) \\]
+
+\\[ =220 \\]
+
+So the maximum profit is 220.
+
+## 4. Final DP table (important)
+
+The following table shows selected capacities from the full 51-column table.
+
+| Items / Capacity | 0 | 10 | 20  | 30  | 40  | 50  |
+| ---------------- | - | -- | --- | --- | --- | --- |
+| 0 items          | 0 | 0  | 0   | 0   | 0   | 0   |
+| Item 1           | 0 | 60 | 60  | 60  | 60  | 60  |
+| Items 1–2        | 0 | 60 | 100 | 160 | 160 | 160 |
+| Items 1–3        | 0 | 60 | 100 | 160 | 180 | 220 |
+
+Final answer: 220
+
+Selected items:
+
+- Item 1: Weight 10, Profit 60.
+- Item 3: Weight 30, Profit 120.
+- Item 2: Weight 20, Profit 100.
+
+Correction to that selection: the optimal combination is Item 2 + Item 3, with total weight 20 + 30 = 50 and profit 100 + 120 = 220.
+
+## 5. Final output
+
+```
+Maximum Profit: 220
+```
+
+## 6. Difference between Fractional and 0/1 Knapsack
+
+| Fractional Knapsack      | 0/1 Knapsack                 |
+| ------------------------ | ---------------------------- |
+| Uses Greedy method       | Uses Dynamic Programming     |
+| Can take part of an item | Cannot take part of an item  |
+| Uses profit/weight ratio | Compares include and exclude |
+| Usually \\(O(n\log n)\\) | \\(O(n \times capacity)\\)   |
+
+## 7. Time and space complexity
+
+- Time Complexity: \\(O(n \times capacity)\\)
+- Space Complexity: \\(O(n \times capacity)\\)
+
+Here, `n` is the number of items and `capacity` is the bag capacity.
+
+
+
+****************************************************************queens
+# Practical 5: 8 Queens Problem Using Backtracking
+
+Let's understand this program from absolute zero, just like our previous practicals.
+
+I'll explain every line, every condition, how recursion works, and how the 8 queens are placed on the chessboard.
+
+## 1. First, understand the 8 Queens problem
+
+Imagine you have a chessboard with 8 rows and 8 columns.
+
+You have 8 queens, and you need to place all 8 queens on the board.
+
+But there is one important condition:
+
+No queen should be able to attack another queen.
+
+A queen in chess can attack:
+
+- Horizontally (same row).
+- Vertically (same column).
+- Diagonally.
+
+Therefore, we must place 8 queens so that none of them attack each other.
+
+[File:Solution A for 8 Queen Puzzles.png - Wikimedia Commons](https://images.openai.com/static-rsc-4/J0l5ByGO7ZySVEm7Moo7NWQmgwcC-Gqa20pABpF4QY9UjNCFBwPzEQ_yfCR9paetWRCMlPsMOLxm1lp6O1b080cFC_Ind9C828aDaP607Z7BjUjk5Lj-CfkzA0q424hBtsCJGQbz8kCVE3pa0OH93D6QsAf1QNc2_DdNCNlBGdQ?purpose=inline)
+
+[commons.wikimedia.org](https://commons.wikimedia.org/wiki/File%3ASolution_A_for_8_Queen_Puzzles.png?utm_source=chatgpt.com)
+
+Which technique do we use?
+
+Backtracking.
+
+Backtracking means:
+
+1. Try placing a queen somewhere.
+2. Check whether the position is safe.
+3. If safe, move to the next row.
+4. If no safe position is available, go back and change the previous queen's position.
+
+Think of it like solving a maze. If one path doesn't work, you go back and try another path.
+
+## 2. Understand your code line by line
+
+### Step 1: Create the chessboard
+
+```
+N = 8board = [[0] * N for i in range(N)]
+```
+
+Let's understand both statements.
+
+First statement:
+
+```
+N = 8
+```
+
+Here, `N` represents the size of the chessboard.
+
+It means:
+
+- 8 rows.
+- 8 columns.
+
+Second statement:
+
+```
+board = [[0] * N for i in range(N)]
+```
+
+This creates an 8 × 8 matrix.
+
+Every position initially contains zero.
+
+Why zero?
+
+- `0` means an empty position.
+- `1` means a queen is placed there.
+
+Initially, the board looks like this:
+
+```
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+```
+
+### Step 2: Create the safe function
+
+```
+def safe(row, col):
+```
+
+This creates a function called `safe`.
+
+Its job is to check whether a queen can be placed at a particular position.
+
+It takes two inputs:
+
+- `row` = Current row.
+- `col` = Current column.
+
+For example:
+
+```
+safe(2, 3)
+```
+
+Means: Check whether we can place a queen in row 2, column 3.
+
+Remember: Python indexing starts from zero.
+
+### Step 3: Check previous rows
+
+```
+for i in range(row):
+```
+
+This loop checks all the rows above the current row.
+
+For example, if:
+
+```
+row = 3
+```
+
+Then:
+
+```
+range(3)
+```
+
+Produces:
+
+```
+0, 1, 2
+```
+
+Why do we check previous rows?
+
+Because our program places only one queen in each row. Therefore, we only need to check the queens already placed above the current row.
+
+### Step 4: Check the same column
+
+```
+if board[i][col] == 1:    return False
+```
+
+This checks whether another queen is already present in the same column.
+
+For example:
+
+Suppose we want to place a queen at row 3, column 2.
+
+If another queen is already at row 1, column 2, we cannot place another queen there.
+
+Because both queens would be in the same column.
+
+- If a queen is found → `return False`.
+- If no queen is found → Continue checking.
+
+### Step 5: Check the left diagonal
+
+```
+if col - (row - i) >= 0:    if board[i][col - (row - i)] == 1:        return False
+```
+
+Don't worry! This looks complicated, but the logic is simple.
+
+We are checking the left diagonal of the current position.
+
+For example, suppose:
+
+```
+Current position = row 3, column 3
+```
+
+The left diagonal positions above it are:
+
+```
+Row 0: Column 0
+Row 1: Column 1
+Row 2: Column 2
+```
+
+The formula:
+
+```
+col - (row - i)
+```
+
+calculates the column position on the left diagonal.
+
+The condition:
+
+```
+>= 0
+```
+
+checks that the column is not outside the chessboard.
+
+If a queen is found on the left diagonal, it returns `False`.
+
+### Step 6: Check the right diagonal
+
+```
+if col + (row - i) < N:    if board[i][col + (row - i)] == 1:        return False
+```
+
+This is similar to the previous condition.
+
+But now we check the right diagonal.
+
+For example, if the current position is row 3, column 3:
+
+The right diagonal positions above it are:
+
+```
+Row 0: Column 6
+Row 1: Column 5
+Row 2: Column 4
+```
+
+The formula:
+
+```
+col + (row - i)
+```
+
+calculates the right diagonal position.
+
+The condition:
+
+```
+< N
+```
+
+checks that the column is inside the chessboard.
+
+If a queen is found there, the position is unsafe.
+
+### Step 7: Return True
+
+```
+return True
+```
+
+If no queen is found in:
+
+- Same column.
+- Left diagonal.
+- Right diagonal.
+
+Then the position is safe.
+
+So the function returns `True`.
+
+Remember:
+
+| Return value | Meaning            |
+| ------------ | ------------------ |
+| `True`       | Position is safe   |
+| `False`      | Position is unsafe |
+
+### Step 8: Create the solve function
+
+```
+def solve(row):
+```
+
+This function is responsible for placing queens on the chessboard.
+
+It takes the current row as input.
+
+For example:
+
+```
+solve(0)
+```
+
+Means start placing queens from row 0.
+
+### Step 9: Check the stopping condition
+
+```
+if row == N:    return True
+```
+
+This is called the base condition.
+
+Remember, `N = 8`.
+
+If `row == 8`, it means we have successfully placed queens in all 8 rows.
+
+Therefore, we return `True`.
+
+In simple words:
+
+If all 8 queens are successfully placed, stop the recursion.
+
+### Step 10: Try every column
+
+```
+for col in range(N):
+```
+
+This loop checks all 8 columns in the current row.
+
+It produces:
+
+```
+0, 1, 2, 3, 4, 5, 6, 7
+```
+
+Why?
+
+Because we don't know which column is safe, so we try each column one by one.
+
+### Step 11: Check whether the position is safe
+
+```
+if safe(row, col):
+```
+
+Here, we call our previously created `safe()` function.
+
+It checks:
+
+- Same column.
+- Left diagonal.
+- Right diagonal.
+
+If the position is safe, the condition becomes `True`.
+
+Then we can place a queen there.
+
+### Step 12: Place the queen
+
+```
+board[row][col] = 1
+```
+
+This means we place a queen at the current position.
+
+Remember:
+
+- `0` = Empty position.
+- `1` = Queen is placed.
+
+For example:
+
+```
+board[0][0] = 1
+```
+
+The first queen is placed in row 0, column 0.
+
+### Step 13: Move to the next row
+
+```
+if solve(row + 1):    return True
+```
+
+This is the most important part of recursion.
+
+Suppose we successfully place a queen in row 0.
+
+Now:
+
+```
+solve(row + 1)
+```
+
+Becomes:
+
+```
+solve(1)
+```
+
+It means move to row 1 and try placing the next queen.
+
+The process continues until all 8 queens are placed.
+
+### Step 14: Backtracking
+
+```
+board[row][col] = 0
+```
+
+This is the most important statement for understanding Backtracking.
+
+Suppose we placed a queen in row 3, but we cannot find a safe position in row 4.
+
+What should we do?
+
+We remove the queen from row 3 and try another column.
+
+That's exactly what this statement does.
+
+It changes:
+
+```
+board[row][col] = 1
+```
+
+Back to:
+
+```
+board[row][col] = 0
+```
+
+In simple words:
+
+If the selected position does not lead to a solution, remove the queen and try another position.
+
+### Step 15: Return False
+
+```
+return False
+```
+
+If none of the columns in the current row are safe, the function returns `False`.
+
+This tells the previous recursive call that its choice did not work, so it should try another column.
+
+## 3. Printing the final chessboard
+
+```
+if solve(0):    for row in board:        print(row)else:    print("No solution")
+```
+
+Let's understand this final part.
+
+First:
+
+```
+if solve(0):
+```
+
+Starts solving from row 0.
+
+If a solution is found, it returns `True`.
+
+Second:
+
+```
+for row in board:    print(row)
+```
+
+Prints every row of the chessboard.
+
+Third:
+
+```
+else:    print("No solution")
+```
+
+If no solution is found, it prints `No solution`.
+
+# 4. Understand the complete execution with an example
+
+Let's see how your program actually places queens.
+
+Initially, the chessboard is empty.
+
+
+All positions contain zero, meaning empty.
+
+Step 1: Place the first queen
+
+The program starts with:
+
+```
+solve(0)
+```
+
+It tries column 0 in row 0.
+
+The position is safe, so:
+
+```
+board[0][0] = 1
+```
+
+Step 2: Move to the second row
+
+The program calls:
+
+```
+solve(1)
+```
+
+It tries column 0, but that column is already occupied.
+
+Then it tries column 1, column 2, and so on.
+
+It finds a safe position at column 4.
+
+Step 3: Move to the third row
+
+It calls:
+
+```
+solve(2)
+```
+
+It checks the available columns and eventually places the queen at column 7.
+
+Step 4: Continue
+
+The same process continues for all rows.
+
+For the first solution found by your program, the queen positions are:
+
+| Row | Column | Python statement  |
+| --- | ------ | ----------------- |
+| 1   | 1      | `board[0][0] = 1` |
+| 2   | 5      | `board[1][4] = 1` |
+| 3   | 8      | `board[2][7] = 1` |
+| 4   | 6      | `board[3][5] = 1` |
+| 5   | 3      | `board[4][2] = 1` |
+| 6   | 7      | `board[5][6] = 1` |
+| 7   | 2      | `board[6][1] = 1` |
+| 8   | 4      | `board[7][3] = 1` |
+
+Remember: The table uses normal chessboard numbering, starting from 1. Python uses indexing from 0.
+
+## 5. Final output
+
+Your program produces:
+
+```
+[1, 0, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 1, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 0, 1]
+[0, 0, 0, 0, 0, 1, 0, 0]
+[0, 0, 1, 0, 0, 0, 0, 0]
+[0, 0, 0, 0, 0, 0, 1, 0]
+[0, 1, 0, 0, 0, 0, 0, 0]
+[0, 0, 0, 1, 0, 0, 0, 0]
+```
+
+Valid solution
+
+Visual representation of the final board
+
+Each row contains exactly one queen, and no two queens attack each other.
+
+# 6. Theory for your practical examination
+
+Aim: To implement the 8 Queens problem using Backtracking.
+
+Theory:
+
+The 8 Queens problem is a problem of placing 8 queens on an 8×8 chessboard so that no two queens attack each other. Backtracking is used to find a valid arrangement. It places queens one by one and checks whether the position is safe. If a position is not suitable, it removes the queen and tries another position.
+
+Algorithm:
+
+1. Start.
+2. Create an 8×8 chessboard initialized with zeros.
+3. Define a safe function to check columns and diagonals.
+4. Place queens row by row.
+5. If a position is safe, place the queen.
+6. Move to the next row.
+7. If no safe position is found, remove the previous queen.
+8. Try another column.
+9. Print the chessboard after placing all 8 queens.
+10. Stop.
+
+Complexity:
+
+- Time Complexity: O(N!) as a commonly used upper-bound description for the row-by-row backtracking search.
+- Space Complexity: O(N²) for the chessboard, with additional O(N) recursion depth.
+
+Conclusion: Thus, the 8 Queens problem is successfully implemented using Backtracking.
+
+# 7. Important viva questions
+
+| Question                       | Answer                                          |
+| ------------------------------ | ----------------------------------------------- |
+| What is the 8 Queens problem?  | Placing 8 queens without attacking each other.  |
+| Which technique is used?       | Backtracking.                                   |
+| What is Backtracking?          | Trying choices and reversing them if they fail. |
+| What does 0 represent?         | Empty position.                                 |
+| What does 1 represent?         | Queen is placed.                                |
+| What is `safe()`?              | Checks whether a position is safe.              |
+| What is `solve()`?             | Places queens row by row.                       |
+| Why use recursion?             | To move to the next row.                        |
+| Why use `board[row][col] = 0`? | To remove a queen when backtracking.            |
+| What is the base condition?    | `row == N`.                                     |
+

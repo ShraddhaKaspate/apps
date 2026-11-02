@@ -1,0 +1,2763 @@
+# Uber Fare Prediction Using Linear Regression and Random Forest – Step-by-Step Explanation
+
+Let's understand this practical line by line in simple English, just like your previous Machine Learning practicals.
+
+## 1. Aim of the Practical
+
+To predict Uber taxi fares using two Machine Learning algorithms:
+
+1. Linear Regression
+2. Random Forest Regression
+
+We will compare both models using R² Score and RMSE.
+
+## 2. What is Uber Fare Prediction?
+
+Uber Fare Prediction is a Machine Learning technique used to estimate the taxi fare based on journey details.
+
+For example, when a person books an Uber, the fare may depend on:
+
+- Pickup location
+- Drop-off location
+- Number of passengers
+- Distance and journey details
+
+The model learns from previous Uber trip data and predicts the fare for a new trip.
+
+Example:
+
+| Pickup     | Drop-off   | Passengers | Fare |
+| ---------- | ---------- | ---------- | ---- |
+| Location A | Location B | 2          | ₹150 |
+| Location C | Location D | 1          | ₹250 |
+| Location E | Location F | 3          | ₹350 |
+
+These are illustrative examples.
+
+## 3. Step-by-Step Code Explanation
+
+### Step 1: Import Required Libraries
+
+```
+import pandas as pdfrom sklearn.model_selection import train_test_splitfrom sklearn.linear_model import LinearRegressionfrom sklearn.ensemble import RandomForestRegressorfrom sklearn.metrics import r2_score, mean_squared_error
+```
+
+Explanation:
+
+1. `import pandas as pd`
+   - Pandas is used to read and manage datasets.
+   - `pd` is the short name for pandas.
+2. `train_test_split`
+   - Divides the dataset into training and testing data.
+3. `LinearRegression`
+   - Imports the Linear Regression algorithm.
+   - Used to predict continuous numerical values.
+4. `RandomForestRegressor`
+   - Imports the Random Forest Regression algorithm.
+   - Uses multiple decision trees to make predictions.
+5. `r2_score`
+   - Measures how well the model explains the target values.
+6. `mean_squared_error`
+   - Calculates the average squared difference between actual and predicted values.
+   - We use it to calculate RMSE.
+
+### Step 2: Load the Dataset
+
+```
+df = pd.read_csv("uber.csv")
+```
+
+Explanation:
+
+- `pd.read_csv()` reads the CSV file.
+- `"uber.csv"` is the dataset filename.
+- `df` stores the dataset in table format.
+
+### Step 3: Clean the Dataset
+
+```
+df = df.dropna().drop_duplicates()
+```
+
+Explanation:
+
+This statement performs two operations:
+
+1. `dropna()` removes rows containing missing values.
+2. `drop_duplicates()` removes repeated rows.
+
+Why do we do this?
+
+To remove incomplete and duplicate records and improve data quality.
+
+### Step 4: Calculate Q1
+
+```
+Q1 = df["fare_amount"].quantile(0.25)
+```
+
+Explanation:
+
+- `fare_amount` is the column containing Uber fare values.
+- `quantile(0.25)` calculates the first quartile (Q1).
+- Q1 represents the 25th percentile of the fare data.
+
+In simple words, approximately 25% of fare values are below Q1.
+
+### Step 5: Calculate Q3
+
+```
+Q3 = df["fare_amount"].quantile(0.75)
+```
+
+Explanation:
+
+- `quantile(0.75)` calculates the third quartile (Q3).
+- Q3 represents the 75th percentile.
+
+Approximately 75% of fare values are below Q3.
+
+### Step 6: Calculate IQR
+
+```
+IQR = Q3 - Q1
+```
+
+Explanation:
+
+- IQR stands for Interquartile Range.
+- It measures the spread of the middle 50% of the data.
+
+Formula:
+
+\\[ IQR = Q3-Q1 \\]
+
+Example:
+
+If Q1 = 100 and Q3 = 300:
+
+\\[ IQR = 300-100=200 \\]
+
+### Step 7: Remove Outliers
+
+```
+df = df[    df["fare_amount"].between(        Q1 - 1.5 * IQR,        Q3 + 1.5 * IQR    )]
+```
+
+This is an important step.
+
+What are outliers?
+
+Outliers are values that are unusually high or low compared to the other values in a dataset.
+
+For example:
+
+```
+100, 150, 200, 250, 300, 5000
+```
+
+Here, 5000 may be an outlier.
+
+Explanation of the code:
+
+- `between()` checks whether fare values fall within a specified range.
+- `Q1 - 1.5 * IQR` calculates the lower limit.
+- `Q3 + 1.5 * IQR` calculates the upper limit.
+- Values outside these limits are removed.
+
+Formula:
+
+\\[ Lower=Q1-1.5(IQR) \\]
+
+\\[ Upper=Q3+1.5(IQR) \\]
+
+Why remove outliers?
+
+Because extremely unusual values can affect the performance of the prediction model.
+
+### Step 8: Display Correlation
+
+```
+print(df.corr(numeric_only=True)["fare_amount"])
+```
+
+Explanation:
+
+- `corr()` calculates the correlation between numerical columns.
+- `numeric_only=True` considers only numerical columns.
+- `["fare_amount"]` displays the correlation of each numerical column with the fare amount.
+- `print()` displays the result.
+
+What is correlation?
+
+Correlation tells us how strongly two numerical variables are related.
+
+Its value ranges from -1 to +1.
+
+| Value | Meaning                       |
+| ----- | ----------------------------- |
+| +1    | Perfect positive relationship |
+| 0     | No linear relationship        |
+| -1    | Perfect negative relationship |
+
+For example, if distance increases, fare may also increase. This is generally a positive relationship.
+
+### Step 9: Select Input Features (X)
+
+```
+X = df[    [        "pickup_longitude",        "pickup_latitude",        "dropoff_longitude",        "dropoff_latitude",        "passenger_count"    ]]
+```
+
+Explanation:
+
+Here, we select the input columns used to predict the fare.
+
+| Column            | Meaning                        |
+| ----------------- | ------------------------------ |
+| pickup_longitude  | Longitude of pickup location   |
+| pickup_latitude   | Latitude of pickup location    |
+| dropoff_longitude | Longitude of drop-off location |
+| dropoff_latitude  | Latitude of drop-off location  |
+| passenger_count   | Number of passengers           |
+
+These five columns are stored in `X`.
+
+Remember: X represents input features.
+
+### Step 10: Select Output Variable (y)
+
+```
+y = df["fare_amount"]
+```
+
+Explanation:
+
+- `y` stores the output or target variable.
+- `fare_amount` represents the Uber fare.
+- The model tries to predict this value.
+
+Remember:
+
+| Variable | Meaning                     |
+| -------- | --------------------------- |
+| X        | Input features              |
+| y        | Output/Target (Fare amount) |
+
+### Step 11: Split the Dataset
+
+```
+X_train, X_test, y_train, y_test = train_test_split(    X, y, test_size=0.2, random_state=42)
+```
+
+Explanation:
+
+This statement divides the dataset into two parts.
+
+- 80% Training Data
+- 20% Testing Data
+
+Dataset splitting
+
+Training Data
+
+# 80%
+
+Testing Data
+
+# 20%
+
+What is training data?
+
+Training data teaches the model using previous Uber trip records.
+
+What is testing data?
+
+Testing data checks how accurately the model predicts fares for unseen records.
+
+Parameters:
+
+- `X, y`: Input and output data.
+- `test_size=0.2`: 20% data is used for testing.
+- `random_state=42`: Keeps the split consistent each time.
+
+## 4. Implement Linear Regression
+
+### Step 12: Create Linear Regression Model
+
+```
+linear_model = LinearRegression()
+```
+
+Explanation:
+
+- Creates a Linear Regression model.
+- Linear Regression is used to predict continuous numerical values.
+- Here, it predicts Uber fare amounts.
+
+How does Linear Regression work?
+
+It finds a best-fit straight line that represents the relationship between input features and output values.
+
+[Basic Concepts: Algorithms, Models, and Learning – Business Applications of Artificial Intelligence and Machine Learning (2nd Ed)](https://images.openai.com/static-rsc-4/rM1vFlcW6Yi-5jvp4y8i2mK1POA45SfWQopFzvFxTLs2v00kKpnOdLKW9d6n5NBcZjGgXpGocbEdLWksamV9h-ltn9zUNH7yAvOiwCSlNX6ZdXms3o5ysBq1rN_WiJ0Nycw3V922dljduUptlHr9cCMtfB_Pzkds1sc72KEpnKE?purpose=inline)
+
+[open.ocolearnok.org](https://open.ocolearnok.org/aibusinessapplications/chapter/chapter-3-basic-concepts-algorithms-and-learning/?utm_source=chatgpt.com)
+
+### Step 13: Train the Linear Regression Model
+
+```
+linear_model.fit(X_train, y_train)
+```
+
+Explanation:
+
+- `fit()` trains the model.
+- `X_train` contains training input features.
+- `y_train` contains actual fare values.
+
+The model learns the relationship between trip details and fare amounts.
+
+### Step 14: Predict Uber Fare
+
+```
+linear_predictions = linear_model.predict(X_test)
+```
+
+Explanation:
+
+- `predict()` makes predictions using testing data.
+- `X_test` contains unseen trip details.
+- `linear_predictions` stores the predicted fare values.
+
+Remember:
+
+`fit()` = Train the model.
+
+`predict()` = Predict the result.
+
+## 5. Implement Random Forest Regression
+
+### Step 15: Create Random Forest Model
+
+```
+random_forest_model = RandomForestRegressor(    n_estimators=50,    random_state=42)
+```
+
+Explanation:
+
+- Creates a Random Forest Regression model.
+- Random Forest uses multiple decision trees to make predictions.
+
+Meaning of parameters:
+
+| Parameter         | Meaning                    |
+| ----------------- | -------------------------- |
+| `n_estimators=50` | Creates 50 decision trees  |
+| `random_state=42` | Makes results reproducible |
+
+How does Random Forest work?
+
+[Regresión con Random Forest: guía completa | DataCamp](https://images.openai.com/static-rsc-4/QBHnaMDDU36DGt0gTT_MDj-3Al_HabUw6a159HVBN6PoJISNadMpyqd6ManVrZvyXzUEAkdEgAoHkl_6nB_E6quEKs9j6uTIrRLptQAZTK_8tYyRJddS9po8UxQtGquL4bmCUMoohocEKOS2Wz-x8MliBgf7h7cWdopnznde80g?purpose=inline)
+
+[datacamp.com](https://www.datacamp.com/es/tutorial/random-forest-regression?utm_source=chatgpt.com)
+
+1. It creates multiple decision trees.
+2. Each tree makes its own prediction.
+3. The predictions are combined.
+4. For regression, the final prediction is generally the average of the tree predictions.
+
+### Step 16: Train the Random Forest Model
+
+```
+random_forest_model.fit(X_train, y_train)
+```
+
+Explanation:
+
+- `fit()` trains the Random Forest model.
+- It uses training input and output data.
+- The model learns patterns from previous Uber trips.
+
+### Step 17: Predict Uber Fare Using Random Forest
+
+```
+random_forest_predictions = random_forest_model.predict(X_test)
+```
+
+Explanation:
+
+- Predicts fare values using testing data.
+- Stores the predicted results in `random_forest_predictions`.
+
+## 6. Evaluate Linear Regression Model
+
+### Step 18: Display Model Name
+
+```
+print("Linear Regression")
+```
+
+Displays the name of the algorithm.
+
+### Step 19: Calculate R² Score
+
+```
+print("R2 Score:", r2_score(y_test, linear_predictions))
+```
+
+Explanation:
+
+- `r2_score()` evaluates the performance of the regression model.
+- `y_test` contains actual fare values.
+- `linear_predictions` contains predicted fare values.
+
+What is R² Score?
+
+R² stands for Coefficient of Determination.
+
+It tells us how well the model explains the variation in the actual fare values.
+
+| R² Value | Meaning                                 |
+| -------- | --------------------------------------- |
+| 1        | Perfect prediction                      |
+| 0        | No improvement over predicting the mean |
+| Negative | Worse than predicting the mean          |
+
+Generally, a higher R² score indicates better performance.
+
+### Step 20: Calculate RMSE
+
+```
+print(    "RMSE:",    mean_squared_error(y_test, linear_predictions) ** 0.5)
+```
+
+Explanation:
+
+- `mean_squared_error()` calculates Mean Squared Error (MSE).
+- `** 0.5` takes the square root of MSE.
+- This gives RMSE.
+- RMSE measures the average size of prediction errors in the same units as the fare.
+
+Formula:
+
+\\[ RMSE=\sqrt{\frac{\sum(y-\hat y)^2}{n}} \\]
+
+Where:
+
+- \\(y\\) = Actual fare
+- \\(\hat y\\) = Predicted fare
+- \\(n\\) = Total number of predictions
+
+Example:
+
+If RMSE = 20, the model's prediction errors have a typical magnitude of around 20 fare units.
+
+A lower RMSE generally means better predictions.
+
+## 7. Evaluate Random Forest Regression Model
+
+### Step 21: Display Model Name
+
+```
+print("Random Forest Regression")
+```
+
+Displays the name of the second algorithm.
+
+### Step 22: Calculate R² Score
+
+```
+print("R2 Score:", r2_score(y_test, random_forest_predictions))
+```
+
+Explanation:
+
+- Calculates the R² score of Random Forest.
+- Compares actual fare values with predicted fare values.
+- Helps us understand how well the model performs.
+
+### Step 23: Calculate RMSE
+
+```
+print(    "RMSE:",    mean_squared_error(y_test, random_forest_predictions) ** 0.5)
+```
+
+Explanation:
+
+- Calculates MSE for Random Forest predictions.
+- Takes the square root using `** 0.5`.
+- Displays the RMSE value.
+
+Finally, we compare the R² score and RMSE of both models.
+
+## 8. Difference Between Linear Regression and Random Forest
+
+| Linear Regression              | Random Forest Regression           |
+| ------------------------------ | ---------------------------------- |
+| Uses a linear relationship     | Uses multiple decision trees       |
+| Simple algorithm               | More complex algorithm             |
+| Creates a best-fit line        | Combines multiple tree predictions |
+| Works well for linear patterns | Can capture complex patterns       |
+| Usually faster to train        | Can require more computation       |
+
+## 9. Complete Practical Flowchart
+
+Start
+
+Import Libraries and Load Uber Dataset
+
+Clean Dataset and Remove Duplicates
+
+Calculate Q1, Q3 and IQR
+
+Remove Outliers and Check Correlation
+
+Select Input (X) and Output (y)
+
+Split Dataset into Training and Testing
+
+Linear Regression
+
+Train and predict
+
+Random Forest
+
+Train and predict
+
+Calculate R² Score and RMSE
+
+Compare Both Models and End
+
+## 10. Important Viva Questions and Answers
+
+Q1. What is the aim of this practical?
+
+To predict Uber fares using Linear Regression and Random Forest Regression algorithms.
+
+Q2. What is regression?
+
+Regression is a supervised machine learning technique used to predict continuous numerical values.
+
+Q3. What is Linear Regression?
+
+Linear Regression is an algorithm that predicts values by finding the best-fit linear relationship between input and output variables.
+
+Q4. What is Random Forest Regression?
+
+It is a machine learning algorithm that uses multiple decision trees and combines their predictions to predict numerical values.
+
+Q5. What is an outlier?
+
+An outlier is an unusually high or low value in a dataset.
+
+Q6. What is IQR?
+
+IQR stands for Interquartile Range. It is calculated by subtracting Q1 from Q3.
+
+Q7. What is Q1?
+
+Q1 is the first quartile or 25th percentile.
+
+Q8. What is Q3?
+
+Q3 is the third quartile or 75th percentile.
+
+Q9. What is correlation?
+
+Correlation measures the relationship between two numerical variables.
+
+Q10. What is R² Score?
+
+R² Score measures how well the regression model explains the variation in the target variable.
+
+Q11. What is RMSE?
+
+RMSE stands for Root Mean Squared Error. It measures the size of prediction errors.
+
+Q12. Which R² score is considered better?
+
+Generally, a higher R² score is better.
+
+Q13. Which RMSE value is considered better?
+
+A lower RMSE is generally better.
+
+Q14. What does `n_estimators=50` mean?
+
+It means the Random Forest model uses 50 decision trees.
+
+Q15. What is the difference between classification and regression?
+
+- Classification predicts categories, such as Spam or Not Spam.
+- Regression predicts numerical values, such as Uber fare or house price.
+
+Q16. Why do we use `train_test_split()`?
+
+To divide the dataset into training and testing data.
+
+Q17. What is `predict()`?
+
+It is used to predict output values using the trained model.
+
+## 11. Test Your Understanding – Viva Practice
+
+Uber fare prediction quiz
+
+0/7 answered
+
+1\. Which algorithms are used in this practical?
+
+KNN and SVM
+
+Linear Regression and Random Forest
+
+K-Means and SVM
+
+
+
+2\. What does fare_amount represent?
+
+Passenger count
+
+Target variable
+
+Pickup location
+
+
+
+3\. What does IQR stand for?
+
+Interquartile Range
+
+Internal Query Result
+
+Input Quality Range
+
+
+
+4\. Which method removes outliers in this practical?
+
+drop_duplicates()
+
+between() with IQR limits
+
+predict()
+
+
+
+5\. What does n_estimators=50 mean?
+
+50 passengers
+
+50 features
+
+50 decision trees
+
+
+
+6\. What does R² Score measure?
+
+Missing values
+
+Model fit and explained variation
+
+Number of passengers
+
+
+
+7\. Which RMSE value is generally better?
+
+Lower RMSE
+
+Higher RMSE
+
+Always zero
+
+
+
+Submit Answers
+
+## 12. Most Important Code to Remember
+
+| Code                   | Easy meaning                 |
+| ---------------------- | ---------------------------- |
+| `pd.read_csv()`        | Read dataset                 |
+| `dropna()`             | Remove missing values        |
+| `drop_duplicates()`    | Remove repeated rows         |
+| `quantile(0.25)`       | Calculate Q1                 |
+| `quantile(0.75)`       | Calculate Q3                 |
+| `IQR = Q3 - Q1`        | Calculate IQR                |
+| `between()`            | Filter values within a range |
+| `corr()`               | Calculate correlation        |
+| `train_test_split()`   | Split dataset                |
+| `fit()`                | Train model                  |
+| `predict()`            | Predict values               |
+| `r2_score()`           | Calculate R² score           |
+| `mean_squared_error()` | Calculate MSE                |
+| `** 0.5`               | Calculate square root        |
+
+One important practical note: Your code is suitable for learning the two regression algorithms, but it does not calculate actual trip distance, and it does not remove invalid latitude/longitude values. Also, the outlier filtering is based only on fare amount. These factors can affect prediction quality.
+
+My suggestion: First understand Q1, Q3, IQR, outliers, Linear Regression, Random Forest, R² Score and RMSE. These are the most important concepts your examiner can ask about in this practical.
+
+
+
+
+
+
+******************************************************************email spma***************************
+# Email Spam Detection Practical – Step-by-Step Explanation
+
+This practical uses Machine Learning to identify whether an email is Spam (unwanted email) or Not Spam (genuine email) using two algorithms:
+
+1. K-Nearest Neighbors (KNN)
+2. Support Vector Machine (SVM)
+
+Let's understand the complete code from the beginning in simple language, assuming you are a beginner.
+
+## 1. Aim of the Practical
+
+To implement email spam detection using KNN and SVM machine learning algorithms and compare their performance using accuracy and confusion matrices.
+
+## 2. What is Email Spam Detection?
+
+Email spam detection is a machine learning technique used to classify emails into two categories:
+
+- Spam (1): Unwanted or fake emails, such as advertisements and fraudulent messages.
+- Not Spam (0): Genuine emails, such as personal and professional messages.
+
+For example:
+
+| Email                          | Prediction   |
+| ------------------------------ | ------------ |
+| You won a lottery! Click here  | Spam (1)     |
+| Your college exam timetable    | Not Spam (0) |
+| Claim your free prize now      | Spam (1)     |
+| Meeting scheduled for tomorrow | Not Spam (0) |
+
+The machine learning model learns from previous email data and predicts whether a new email is spam or not.
+
+## 3. Step-by-Step Code Explanation
+
+### Step 1: Import Required Libraries
+
+```
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix
+```
+
+Explanation:
+
+- `import pandas as pd`: Used to read and manage data in table format.
+- `train_test_split`: Divides the dataset into training and testing data.
+- `KNeighborsClassifier`: Used to implement the KNN algorithm.
+- `SVC`: Used to implement the SVM algorithm.
+- `accuracy_score`: Calculates the accuracy of the model.
+- `confusion_matrix`: Shows correct and incorrect predictions.
+
+Remember: Pandas handles data, sklearn provides machine learning algorithms, and metrics evaluate the model.
+
+### Step 2: Load the Dataset
+
+```
+df = pd.read_csv("emails.csv")
+```
+
+Explanation:
+
+- `read_csv()` reads the CSV file.
+- `"emails.csv"` is the name of our dataset.
+- `df` stores the dataset in DataFrame format.
+
+A DataFrame is simply a table containing rows and columns.
+
+Example:
+
+| Email No. | word1 | word2 | word3 | Prediction |
+| --------- | ----- | ----- | ----- | ---------- |
+| Email 1   | 2     | 0     | 1     | 1          |
+| Email 2   | 0     | 3     | 0     | 0          |
+| Email 3   | 1     | 2     | 1     | 1          |
+
+Here, the numbers represent the frequency of particular words in emails.
+
+### Step 3: Clean the Dataset
+
+```
+df = df.dropna().drop_duplicates()
+```
+
+Explanation:
+
+This statement performs two operations:
+
+1. `dropna()` removes rows containing missing values.
+2. `drop_duplicates()` removes repeated rows.
+
+Why do we do this?
+
+To improve data quality and avoid unnecessary or incomplete records.
+
+### Step 4: Remove the Email Number Column
+
+```
+df = df.drop(columns=["Email No."])
+```
+
+Explanation:
+
+- `drop()` removes a column from the dataset.
+- `columns=["Email No."]` specifies which column to remove.
+
+Why remove it?
+
+The email number is only an identification number. It does not help the machine learning model decide whether an email is spam.
+
+### Step 5: Separate Input and Output Data
+
+```
+X = df.drop("Prediction", axis=1)
+y = df["Prediction"]
+```
+
+This is one of the most important steps.
+
+X – Input Data (Features)
+
+```
+X = df.drop("Prediction", axis=1)
+```
+
+- Contains all columns except Prediction.
+- These columns contain information used to identify spam emails.
+- `axis=1` means we are removing a column.
+
+y – Output Data (Target)
+
+```
+y = df["Prediction"]
+```
+
+- Contains the final result.
+- `0` means Not Spam.
+- `1` means Spam.
+
+Remember:
+
+| Variable | Meaning        |
+| -------- | -------------- |
+| X        | Input features |
+| y        | Output/Target  |
+
+### Step 6: Split the Dataset into Training and Testing Data
+
+```
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+```
+
+Explanation:
+
+We divide the dataset into two parts:
+
+- 80% Training Data
+- 20% Testing Data
+
+What is training data?
+
+Training data is used by the machine learning algorithm to learn patterns from emails.
+
+What is testing data?
+
+Testing data is used to check how accurately the trained model predicts unseen emails.
+
+Meaning of parameters:
+
+- `X, y`: Input and output data.
+- `test_size=0.2`: 20% data is used for testing.
+- `random_state=42`: Keeps the split consistent when we run the program again.
+
+Dataset splitting example
+
+Training data
+
+# 80%
+
+Testing data
+
+# 20%
+
+### Step 7: Implement KNN Algorithm
+
+```
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+knn_predictions = knn_model.predict(X_test)
+```
+
+Explanation:
+
+1\. Create KNN Model
+
+```
+knn_model = KNeighborsClassifier(n_neighbors=5)
+```
+
+- Creates a KNN classifier.
+- `n_neighbors=5` means the algorithm considers the 5 nearest data points.
+
+2\. Train the Model
+
+```
+knn_model.fit(X_train, y_train)
+```
+
+- `fit()` trains the model using training data.
+- The model learns patterns from the training dataset.
+
+3\. Predict the Results
+
+```
+knn_predictions = knn_model.predict(X_test)
+```
+
+- `predict()` predicts whether the testing emails are spam or not.
+- Results are stored in `knn_predictions`.
+
+How does KNN work?
+
+[K-Nearest Neighbors (KNN): A Simple Yet Powerful Machine Learning Algorithm | by SamriddhiRuhela | Medium](https://images.openai.com/static-rsc-4/-UxuLGqx3F4IE4CFtz2MBhNlq5tNtY98hggMQbLO19QRdY5RfG5ZJ55iRNjG9VPDm1L1vVsQ8h4BdbhUw0HJITBhjbjxl4KdrH_AzCLyTy_sVlbze_M1nYkPoaIiQwiIDfr7GZCjPPeST4Ubd1kgYHzfuWYp-unUPbJKlIq-WUQ?purpose=inline)
+
+[medium.com](https://medium.com/%40ruhelasamridhi/k-nearest-neighbors-knn-a-simple-yet-powerful-machine-learning-algorithm-c3a3bd83057a?utm_source=chatgpt.com)
+
+KNN works on the principle of nearest neighbors.
+
+1. It finds the 5 nearest data points.
+2. It checks their categories.
+3. It counts which category occurs most frequently.
+4. It assigns that category to the new data point.
+
+Example:
+
+If 3 nearest emails are Spam and 2 are Not Spam, the new email is classified as Spam.
+
+### Step 8: Implement SVM Algorithm
+
+```
+svm_model = SVC()
+svm_model.fit(X_train, y_train)
+svm_predictions = svm_model.predict(X_test)
+```
+
+Explanation:
+
+1\. Create SVM Model
+
+```
+svm_model = SVC()
+```
+
+- Creates an SVM classifier.
+- SVC stands for Support Vector Classifier.
+
+2\. Train the Model
+
+```
+svm_model.fit(X_train, y_train)
+```
+
+- Trains the SVM model using training data.
+- The model learns how to separate spam and genuine emails.
+
+3\. Predict the Results
+
+```
+svm_predictions = svm_model.predict(X_test)
+```
+
+- Predicts whether testing emails are spam or not.
+- Stores results in `svm_predictions`.
+
+How does SVM work?
+
+[Support Vector Machine (SVM) in Python](https://images.openai.com/static-rsc-4/bOrUmqIBBtW53BQeRnCs19VXwqNBetwyxTwH9K7PXWBFH6P7_eiSpUA_qb1__4Fc5MA4drRqDxbyuiTd-9qlLwemdysgqILU9fKFFEmRyzfRwFCGcys16DBtCO103NgCbK20NEcvn0LMhLIB91h_z7BIegxlAxx3FAJhJhKw9sg?purpose=inline)
+
+[reneshbedre.com](https://www.reneshbedre.com/blog/support-vector-machine.html?utm_source=chatgpt.com)
+
+SVM works by finding the best decision boundary (hyperplane) that separates two categories.
+
+For example:
+
+- One side represents Spam emails.
+- The other side represents Not Spam emails.
+
+It tries to maximize the margin between the two categories.
+
+### Step 9: Calculate KNN Accuracy
+
+```
+print("KNN Accuracy:", accuracy_score(y_test, knn_predictions))
+```
+
+Explanation:
+
+- `accuracy_score()` compares actual results with predicted results.
+- `y_test` contains actual answers.
+- `knn_predictions` contains predicted answers.
+- It calculates how many predictions are correct.
+
+Formula:
+
+\\[ Accuracy = \frac{Correct\ Predictions}{Total\ Predictions}\times100 \\]
+
+Example: If 90 out of 100 emails are correctly classified:
+
+\\[ Accuracy = \frac{90}{100}\times100=90\\% \\]
+
+### Step 10: Display KNN Confusion Matrix
+
+```
+print("KNN Confusion Matrix:")
+print(confusion_matrix(y_test, knn_predictions))
+```
+
+Explanation:
+
+A confusion matrix shows the number of correct and incorrect predictions.
+
+Example:
+
+Example confusion matrix
+
+Predicted values →
+
+Actual ↓
+
+# 45
+
+True Negative
+
+# 5
+
+False Positive
+
+# 3
+
+False Negative
+
+# 47
+
+True Positive
+
+Illustrative values only, not your actual practical output.
+
+Meaning:
+
+| Term                | Meaning                      |
+| ------------------- | ---------------------------- |
+| True Negative (TN)  | Correctly predicted Not Spam |
+| False Positive (FP) | Not Spam predicted as Spam   |
+| False Negative (FN) | Spam predicted as Not Spam   |
+| True Positive (TP)  | Correctly predicted Spam     |
+
+### Step 11: Calculate SVM Accuracy and Confusion Matrix
+
+```
+print("SVM Accuracy:", accuracy_score(y_test, svm_predictions))
+
+print("SVM Confusion Matrix:")
+print(confusion_matrix(y_test, svm_predictions))
+```
+
+This works exactly like the KNN evaluation.
+
+- Calculates SVM accuracy.
+- Displays the SVM confusion matrix.
+- Helps compare KNN and SVM performance.
+
+## 4. Complete Practical Flowchart
+
+Start
+
+Load Email Dataset
+
+Clean Dataset and Remove Email Number
+
+Separate Input (X) and Output (y)
+
+Split Data into Training (80%) and Testing (20%)
+
+KNN Algorithm
+
+Train and predict
+
+SVM Algorithm
+
+Train and predict
+
+Calculate Accuracy and Confusion Matrix
+
+Compare KNN and SVM
+
+End
+
+## 5. Important Viva Questions and Answers
+
+These are important questions your practical examiner may ask.
+
+Q1. What is the aim of this practical?
+
+To detect spam emails using KNN and SVM machine learning algorithms.
+
+Q2. What is machine learning?
+
+Machine learning is a technique in which computers learn from data and make predictions without being explicitly programmed for every situation.
+
+Q3. What is KNN?
+
+KNN stands for K-Nearest Neighbors. It classifies new data based on the majority class of its nearest neighbors.
+
+Q4. What is SVM?
+
+SVM stands for Support Vector Machine. It classifies data by finding the best separating boundary between different classes.
+
+Q5. What is the difference between KNN and SVM?
+
+- KNN uses the nearest data points to classify new data.
+- SVM uses a separating boundary to classify data.
+
+Q6. What is `n_neighbors=5`?
+
+It means KNN considers the five nearest neighbors for classification.
+
+Q7. What is `fit()`?
+
+It is used to train the machine learning model.
+
+Q8. What is `predict()`?
+
+It is used to predict the output for new or testing data.
+
+Q9. What is accuracy?
+
+Accuracy is the percentage of correctly predicted results out of the total predictions.
+
+Q10. What is a confusion matrix?
+
+It is a table used to evaluate a classification model by showing correct and incorrect predictions.
+
+Q11. What is `test_size=0.2`?
+
+It means 20% of the dataset is used for testing and the remaining 80% for training.
+
+Q12. What is `random_state=42`?
+
+It ensures that the dataset is split consistently each time the code runs.
+
+Q13. What is the difference between training and testing data?
+
+Training data teaches the model, while testing data checks its performance.
+
+Q14. What does Prediction 0 and 1 mean?
+
+- 0 = Not Spam
+- 1 = Spam
+
+Q15. Which algorithm is better, KNN or SVM?
+
+The algorithm with better performance on unseen testing data is generally preferred. We compare their accuracy and confusion matrices to decide.
+
+## 6. Test Your Understanding
+
+Try answering these beginner-level questions to check whether you understood the practical.
+
+Practical knowledge test
+
+0/6 answered
+
+1\. Which library is used to read the CSV dataset?
+
+NumPy
+
+Pandas
+
+Matplotlib
+
+
+
+2\. What does X represent?
+
+Output data
+
+Input features
+
+Accuracy
+
+
+
+3\. What does fit() do?
+
+Train the model
+
+Delete data
+
+Calculate accuracy
+
+
+
+4\. In KNN, what does n_neighbors=5 mean?
+
+5 datasets
+
+5 nearest neighbors
+
+5 algorithms
+
+
+
+5\. What does Prediction = 1 represent?
+
+Not Spam
+
+Spam
+
+Missing value
+
+
+
+6\. What does test_size=0.2 mean?
+
+20% training
+
+80% testing
+
+20% testing
+
+
+
+Submit Answers
+
+Important practical tip: Understand these five things properly for your viva: `X`, `y`, `train_test_split()`, `fit()`, and `predict()`. If you understand these, you will be able to explain most of the code confidently.
+Here is the theory section you can add before the code in your practical journal. I've kept it in simple, college-level language so you can also explain it during your viva.
+
+# Theory: Email Spam Detection Using KNN and SVM
+
+## 1. Introduction
+
+Email spam detection is a technique used to identify unwanted or fraudulent emails. Spam emails generally contain advertisements, fake offers, suspicious links, or misleading information.
+
+Machine Learning helps computers identify spam emails automatically by learning patterns from previously available email data.
+
+In this practical, we use two supervised machine learning classification algorithms:
+
+1. K-Nearest Neighbors (KNN)
+2. Support Vector Machine (SVM)
+
+Both algorithms classify emails into two categories:
+
+- Spam (1): Unwanted emails.
+- Not Spam (0): Genuine emails.
+
+## 2. What is Machine Learning?
+
+Machine Learning is a branch of Artificial Intelligence (AI) that allows computers to learn from data and make predictions or decisions without being explicitly programmed for every task.
+
+In this practical, the machine learns from existing email data and predicts whether an email is spam or not spam.
+
+## 3. What is Classification?
+
+Classification is a supervised machine learning technique used to divide data into predefined categories or classes.
+
+For example, in email spam detection, the two classes are:
+
+- Class 0 – Not Spam
+- Class 1 – Spam
+
+The model learns from labelled training data and predicts the category of new data.
+
+## 4. K-Nearest Neighbors (KNN) Algorithm
+
+KNN is a supervised machine learning algorithm used for classification and regression.
+
+It classifies new data based on the nearest data points available in the training dataset.
+
+Working of KNN:
+
+1. Select the value of K (number of neighbors).
+2. Calculate the distance between the new data point and existing data points.
+3. Find the K nearest neighbors.
+4. Check the majority class among those neighbors.
+5. Assign the majority class to the new data point.
+
+In this practical, we use `n_neighbors=5`, which means the algorithm considers five nearest neighbors to classify an email.
+
+Advantages:
+
+- Easy to understand and implement.
+- Simple algorithm.
+- No complex training process.
+
+Disadvantages:
+
+- Slow for large datasets.
+- Performance depends on the value of K.
+- Sensitive to irrelevant features and feature scaling.
+
+## 5. Support Vector Machine (SVM) Algorithm
+
+SVM is a supervised machine learning algorithm mainly used for classification.
+
+It works by finding the best decision boundary, called a hyperplane, to separate different classes of data.
+
+In email spam detection, SVM separates spam emails from genuine emails based on their features.
+
+Working of SVM:
+
+1. Takes the training data as input.
+2. Identifies different classes of data.
+3. Finds the best separating hyperplane.
+4. Maximizes the margin between the classes.
+5. Uses the learned boundary to classify new emails.
+
+Advantages:
+
+- Effective for high-dimensional datasets.
+- Works well for classification problems.
+- Can handle complex decision boundaries using kernels.
+
+Disadvantages:
+
+- Can be slow on large datasets.
+- Choosing the right kernel and parameters can be difficult.
+- Requires feature scaling for better performance.
+
+## 6. Training and Testing Data
+
+In machine learning, the dataset is divided into two parts:
+
+Training Data: Used to train the model and help it learn patterns.
+
+Testing Data: Used to evaluate the performance of the trained model on unseen data.
+
+In this practical:
+
+- 80% data is used for training.
+- 20% data is used for testing.
+
+## 7. Model Evaluation
+
+After training the models, we evaluate their performance using the following methods.
+
+A. Accuracy
+
+Accuracy measures the percentage of correctly classified emails.
+
+\\[ Accuracy = \frac{Correct\ Predictions}{Total\ Predictions}\times100 \\]
+
+B. Confusion Matrix
+
+A confusion matrix is a table used to evaluate the performance of a classification model.
+
+It contains four values:
+
+| Term                | Meaning                                   |
+| ------------------- | ----------------------------------------- |
+| True Positive (TP)  | Spam correctly identified as Spam         |
+| True Negative (TN)  | Not Spam correctly identified as Not Spam |
+| False Positive (FP) | Not Spam incorrectly identified as Spam   |
+| False Negative (FN) | Spam incorrectly identified as Not Spam   |
+
+## 8. Applications of Email Spam Detection
+
+1. Gmail and other email filtering systems.
+2. Detection of phishing emails.
+3. Blocking unwanted advertisements.
+4. Protection against fraudulent messages.
+5. Improving email security.
+
+## 9. Conclusion
+
+In this practical, we implemented email spam detection using KNN and SVM algorithms. The dataset was cleaned, divided into training and testing sets, and used to train both models. Their performance was evaluated using accuracy and confusion matrices. The results help us compare both algorithms and identify which performs better for email spam classification.
+
+
+
+
+************************************************************************diabetes*******************************
+# Diabetes Prediction Using KNN Algorithm – Step-by-Step Explanation
+
+Let's understand this practical line by line in very simple language, assuming you are a complete beginner.
+
+## 1. Aim of the Practical
+
+To implement the K-Nearest Neighbors (KNN) classification algorithm to predict whether a person has diabetes or not and evaluate the model using a confusion matrix, accuracy, error rate, precision, and recall.
+
+## 2. What is Diabetes Prediction?
+
+Diabetes prediction is a machine learning technique used to predict whether a person has diabetes based on medical information.
+
+For example, the dataset may contain:
+
+* Pregnancies
+
+* Glucose level
+
+* Blood pressure
+
+* Skin thickness
+
+* Insulin level
+
+* BMI
+
+* Age
+
+The model studies this information and predicts the result.
+
+| Outcome | Meaning                       |
+| ------- | ----------------------------- |
+| 0       | Person does not have diabetes |
+| 1       | Person has diabetes           |
+
+## 3. Step-by-Step Code Explanation
+
+### Step 1: Import Required Libraries
+
+Python
+
+```
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import precision_score, recall_score
+```
+
+Explanation:
+
+1. `import pandas as pd`
+
+   * Pandas is used to read and manage datasets.
+
+   * `pd` is a short name for pandas.
+2. `train_test_split`
+
+   * Divides the dataset into training and testing data.
+3. `KNeighborsClassifier`
+
+   * Used to implement the KNN algorithm.
+4. `confusion_matrix`
+
+   * Displays correct and incorrect predictions.
+5. `accuracy_score`
+
+   * Calculates the accuracy of the model.
+6. `precision_score`
+
+   * Calculates how many predicted positive cases are actually positive.
+7. `recall_score`
+
+   * Calculates how many actual positive cases are correctly identified.
+
+### Step 2: Load the Dataset
+
+Python
+
+```
+df = pd.read_csv("diabetes.csv")
+```
+
+Explanation:
+
+* `pd.read_csv()` reads the CSV file.
+
+* `"diabetes.csv"` is the dataset filename.
+
+* `df` stores the dataset in table format.
+
+Example of a diabetes dataset:
+
+| Pregnancies | Glucose | BloodPressure | BMI  | Age | Outcome |
+| ----------- | ------- | ------------- | ---- | --- | ------- |
+| 2           | 120     | 70            | 25.5 | 25  | 0       |
+| 6           | 150     | 80            | 32.0 | 45  | 1       |
+| 1           | 90      | 60            | 22.0 | 22  | 0       |
+| 4           | 180     | 85            | 35.0 | 50  | 1       |
+
+These are illustrative values.
+
+### Step 3: Separate Input and Output Data
+
+Python
+
+```
+X = df.drop("Outcome", axis=1)
+y = df["Outcome"]
+```
+
+This is one of the most important steps.
+
+First line:
+
+Python
+
+```
+X = df.drop("Outcome", axis=1)
+```
+
+* `X` stores the input data.
+
+* `drop()` removes the Outcome column.
+
+* `axis=1` means we are removing a column.
+
+So, X contains information such as glucose, BMI, age, blood pressure, etc.
+
+Second line:
+
+Python
+
+```
+y = df["Outcome"]
+```
+
+* `y` stores the output or target.
+
+* It contains the final result.
+
+* 0 means No Diabetes.
+
+* 1 means Diabetes.
+
+Remember:
+
+| Variable | Meaning               |
+| -------- | --------------------- |
+| X        | Input data (Features) |
+| y        | Output data (Target)  |
+
+### Step 4: Split the Dataset into Training and Testing Data
+
+Python
+
+```
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+```
+
+Explanation:
+
+This statement divides the dataset into two parts.
+
+* 80% Training Data
+
+* 20% Testing Data
+
+Dataset splitting
+
+Training data
+
+# 80%
+
+Testing data
+
+# 20%
+
+What is training data?
+
+Training data is used to teach the machine learning model.
+
+What is testing data?
+
+Testing data is used to check how accurately the model predicts results on data it has not seen during training.
+
+Meaning of parameters:
+
+* `X, y`: Input and output data.
+
+* `test_size=0.2`: 20% data is used for testing.
+
+* `random_state=42`: Keeps the data splitting consistent every time the program runs.
+
+### Step 5: Create the KNN Model
+
+Python
+
+```
+knn_model = KNeighborsClassifier(n_neighbors=5)
+```
+
+Explanation:
+
+* Creates a KNN classification model.
+
+* `KNeighborsClassifier` is the KNN algorithm.
+
+* `n_neighbors=5` means the algorithm considers the 5 nearest data points.
+
+How does KNN work?
+
+![K-Nearest Neighbors (KNN): A Simple Yet Powerful Machine Learning Algorithm | by SamriddhiRuhela | Medium](https://images.openai.com/static-rsc-4/-UxuLGqx3F4IE4CFtz2MBhNlq5tNtY98hggMQbLO19QRdY5RfG5ZJ55iRNjG9VPDm1L1vVsQ8h4BdbhUw0HJITBhjbjxl4KdrH_AzCLyTy_sVlbze_M1nYkPoaIiQwiIDfr7GZCjPPeST4Ubd1kgYHzfuWYp-unUPbJKlIq-WUQ?purpose=inline)
+
+Checking Favorites status
+
+[medium](https://medium.com/%40ruhelasamridhi/k-nearest-neighbors-knn-a-simple-yet-powerful-machine-learning-algorithm-c3a3bd83057a?utm_source=chatgpt.com)
+
+Suppose we want to predict whether a person has diabetes.
+
+1. KNN finds the 5 nearest people in the training dataset.
+
+2. It checks their outcomes.
+
+3. It counts the majority category.
+
+4. It predicts the new person's outcome based on the majority.
+
+Example:
+
+* 3 nearest people have diabetes.
+
+* 2 nearest people do not have diabetes.
+
+The model predicts Diabetes (1).
+
+### Step 6: Train the KNN Model
+
+Python
+
+```
+knn_model.fit(X_train, y_train)
+```
+
+Explanation:
+
+* `fit()` is used to train the model.
+
+* `X_train` contains training input data.
+
+* `y_train` contains the correct output values.
+
+The model uses these examples to prepare for making predictions.
+
+Remember: `fit()` means training.
+
+### Step 7: Predict the Results
+
+Python
+
+```
+predictions = knn_model.predict(X_test)
+```
+
+Explanation:
+
+* `predict()` is used to predict the output.
+
+* `X_test` contains testing input data.
+
+* `predictions` stores the predicted results.
+
+The result will contain:
+
+* 0 = No Diabetes
+
+* 1 = Diabetes
+
+Remember: `predict()` means prediction.
+
+### Step 8: Display the Confusion Matrix
+
+Python
+
+```
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, predictions))
+```
+
+Explanation:
+
+* `y_test` contains actual answers.
+
+* `predictions` contains predicted answers.
+
+* `confusion_matrix()` compares both.
+
+Example:
+
+Example confusion matrix
+
+Predicted values →
+
+# 80
+
+True Negative
+
+Correctly predicted No Diabetes
+
+# 10
+
+False Positive
+
+Predicted Diabetes incorrectly
+
+# 5
+
+False Negative
+
+Missed a Diabetes case
+
+# 59
+
+True Positive
+
+Correctly predicted Diabetes
+
+Illustrative example only, not actual output from your dataset.
+
+There are four important terms:
+
+| Term | Meaning                                      |
+| ---- | -------------------------------------------- |
+| TN   | Correctly predicted No Diabetes              |
+| FP   | Predicted Diabetes, but actually No Diabetes |
+| FN   | Predicted No Diabetes, but actually Diabetes |
+| TP   | Correctly predicted Diabetes                 |
+
+### Step 9: Calculate Accuracy
+
+Python
+
+```
+accuracy = accuracy_score(y_test, predictions)
+```
+
+Explanation:
+
+* `accuracy_score()` calculates the accuracy of the model.
+
+* It compares actual results with predicted results.
+
+* The result is stored in the `accuracy` variable.
+
+Formula:
+
+Accuracy=TP+TNTP+TN+FP+FNAccuracy = \frac{TP+TN}{TP+TN+FP+FN}Accuracy=TP+TN+FP+FNTP+TN
+
+Example:
+
+If the model correctly predicts 90 out of 100 people:
+
+Accuracy=90100=0.90Accuracy = \frac{90}{100}=0.90Accuracy=10090=0.90
+
+Accuracy = 90%.
+
+### Step 10: Display Accuracy
+
+Python
+
+```
+print("Accuracy:", accuracy)
+```
+
+Explanation:
+
+* `print()` displays the result.
+
+* `accuracy` displays the calculated accuracy.
+
+Example output:
+
+```
+Accuracy: 0.90
+```
+
+It means the model has 90% accuracy.
+
+### Step 11: Calculate Error Rate
+
+Python
+
+```
+print("Error Rate:", 1 - accuracy)
+```
+
+Explanation:
+
+* Error rate represents the percentage of incorrect predictions.
+
+* We subtract accuracy from 1.
+
+Formula:
+
+Error Rate=1−AccuracyError\ Rate = 1 - AccuracyError Rate=1−Accuracy
+
+Example:
+
+If accuracy = 0.90:
+
+Error Rate=1−0.90=0.10Error\ Rate = 1 - 0.90 = 0.10Error Rate=1−0.90=0.10
+
+Error Rate = 10%.
+
+### Step 12: Calculate Precision
+
+Python
+
+```
+print("Precision:", precision_score(y_test, predictions))
+```
+
+Explanation:
+
+Precision tells us how many people predicted as having diabetes actually have diabetes according to the dataset.
+
+Formula:
+
+Precision=TPTP+FPPrecision = \frac{TP}{TP+FP}Precision=TP+FPTP
+
+Example:
+
+* Model predicts 20 people have diabetes.
+
+* Out of these, 15 actually have diabetes.
+
+Precision=1520=0.75Precision = \frac{15}{20}=0.75Precision=2015=0.75
+
+Precision = 75%.
+
+Remember: Precision focuses on correct positive predictions.
+
+### Step 13: Calculate Recall
+
+Python
+
+```
+print("Recall:", recall_score(y_test, predictions))
+```
+
+Explanation:
+
+Recall tells us how many actual diabetes cases the model correctly identifies.
+
+Formula:
+
+Recall=TPTP+FNRecall = \frac{TP}{TP+FN}Recall=TP+FNTP
+
+Example:
+
+* 20 people actually have diabetes.
+
+* Model correctly identifies 16 people.
+
+Recall=1620=0.80Recall = \frac{16}{20}=0.80Recall=2016=0.80
+
+Recall = 80%.
+
+Remember: Recall focuses on finding actual positive cases.
+
+In medical screening, recall is especially important because missing a person who may have diabetes can be serious. This model is for educational purposes, not medical diagnosis.
+
+## 4. Important Difference Between Evaluation Metrics
+
+| Metric     | What does it measure?                     |
+| ---------- | ----------------------------------------- |
+| Accuracy   | Overall correct predictions               |
+| Error Rate | Overall incorrect predictions             |
+| Precision  | Correctness of positive predictions       |
+| Recall     | Ability to identify actual positive cases |
+
+Easy trick to remember:
+
+* Accuracy = How many predictions are correct?
+
+* Error Rate = How many predictions are wrong?
+
+* Precision = Out of predicted diabetes cases, how many are correct?
+
+* Recall = Out of actual diabetes cases, how many are detected?
+
+## 5. Complete Practical Flowchart
+
+Start
+
+Load Diabetes Dataset
+
+Separate Input (X) and Output (y)
+
+Split Dataset into Training and Testing
+
+Create KNN Model (K=5)
+
+Train Model using fit()
+
+Predict Results using predict()
+
+Calculate Confusion Matrix
+
+Calculate Accuracy, Error Rate, Precision and Recall
+
+End
+
+## 6. Important Viva Questions and Answers
+
+These are the questions you should prepare for your practical examination.
+
+Q1. What is the aim of this practical?
+
+To predict diabetes using the KNN machine learning algorithm and evaluate its performance.
+
+Q2. What is KNN?
+
+KNN stands for K-Nearest Neighbors. It is a supervised machine learning algorithm used for classification and regression.
+
+Q3. What is supervised learning?
+
+Supervised learning is a type of machine learning where the model learns from labeled data.
+
+Q4. What is the value of K in this practical?
+
+The value of K is 5 because we use `n_neighbors=5`.
+
+Q5. What is the purpose of `fit()`?
+
+It is used to train the machine learning model.
+
+Q6. What is the purpose of `predict()`?
+
+It is used to predict the output for testing data.
+
+Q7. What is Outcome in the diabetes dataset?
+
+Outcome is the target column that indicates whether a person has diabetes (1) or does not have diabetes (0).
+
+Q8. What is accuracy?
+
+Accuracy is the ratio of correct predictions to total predictions.
+
+Q9. What is error rate?
+
+Error rate is the ratio of incorrect predictions to total predictions. It is calculated as 1 minus accuracy.
+
+Q10. What is precision?
+
+Precision measures how many predicted positive cases are actually positive.
+
+Q11. What is recall?
+
+Recall measures how many actual positive cases are correctly identified.
+
+Q12. What is a confusion matrix?
+
+It is a table that compares actual and predicted values to evaluate a classification model.
+
+Q13. What is `test_size=0.2`?
+
+It means 20% of the dataset is used for testing and 80% for training.
+
+Q14. What is `random_state=42`?
+
+It ensures the same random train-test split whenever the program is executed with the same data.
+
+Q15. Why is KNN called a lazy learning algorithm?
+
+Because it does not build an explicit model during training. It stores the training data and performs the neighbor search when making predictions.
+
+## 7. Test Your Understanding
+
+Try these six questions. They will help you prepare for your viva.
+
+Beginner viva test
+
+0/6 answered
+
+1. Which function is used to read the diabetes CSV file?
+
+read_excel()
+
+read_csv()
+
+read_file()
+
+2. What does Outcome represent?
+
+Input feature
+
+Target/output column
+
+Dataset name
+
+3. What is the value of K in this practical?
+
+2
+
+5
+
+10
+
+4. Which function trains the model?
+
+fit()
+
+predict()
+
+print()
+
+5. What does Error Rate equal?
+
+1 + Accuracy
+
+1 - Accuracy
+
+Accuracy × 2
+
+6. Which metric measures the ability to identify actual diabetes cases?
+
+Precision
+
+Recall
+
+Error Rate
+
+Submit Answers
+
+My suggestion for your practical exam: Give special attention to the difference between Accuracy, Precision, Recall, and Error Rate. These four metrics are very commonly asked in machine learning practical vivas.
+
+
+
+
+
+
+*************************************************************************Clustering
+
+
+# Sales Data Clustering Using K-Means Algorithm – Step-by-Step Explanation
+
+Let's understand this practical line by line in simple beginner-friendly language, just like your previous KNN practicals.
+
+## 1. Aim of the Practical
+
+To perform customer or sales data clustering using the K-Means Clustering Algorithm and determine the optimal number of clusters using the Elbow Method.
+
+## 2. What is Clustering?
+
+Clustering is a Machine Learning technique used to divide similar data into different groups called clusters.
+
+For example, suppose a company has 100 customers.
+
+We can divide them into 3 groups:
+
+* Cluster 0: Customers with low sales.
+
+* Cluster 1: Customers with medium sales.
+
+* Cluster 2: Customers with high sales.
+
+The main purpose is to group similar customers based on their sales information.
+
+![K-Means Clustering : What I Learned In Unsupervised Learning | by Aniket | Feb, 2026 | Medium](https://images.openai.com/static-rsc-4/3v1W6Q5JchPbzaluk6RuEm1ht_MJhFf2QohPRQCwbhuGGhMY28dTZkN9fwkAgjhqBs2DiVLz0yF9OAjbhRePcy982cQdxZwKNHEOTzRmdQvwh_1yjxiMz4oOtDpIxW1loQ8tKjVHp7Hn57rSy1yauK7QBLDOtOMhnBkHbob-Dpg?purpose=inline)
+
+Checking Favorites status
+
+[medium](https://medium.com/%40aniani2521/k-means-clustering-what-i-learned-in-unsupervised-learning-e83bfc3ce4bf?utm_source=chatgpt.com)
+
+Important: K-Means is an Unsupervised Machine Learning algorithm because it does not require predefined output labels.
+
+## 3. Step-by-Step Code Explanation
+
+### Step 1: Import Required Libraries
+
+Python
+
+```
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+```
+
+Explanation:
+
+1. `import pandas as pd`
+
+   * Pandas is used to read and manage datasets.
+
+   * `pd` is the short name for pandas.
+2. `import matplotlib.pyplot as plt`
+
+   * Used to create graphs and charts.
+
+   * `plt` is the short name for pyplot.
+3. `from sklearn.cluster import KMeans`
+
+   * Imports the K-Means clustering algorithm.
+
+   * Used to divide data into different clusters.
+4. `from sklearn.preprocessing import StandardScaler`
+
+   * Used to scale the data.
+
+   * Makes all features comparable by bringing them to a similar scale.
+
+Remember:
+
+| Library        | Purpose         |
+| -------------- | --------------- |
+| Pandas         | Read dataset    |
+| Matplotlib     | Draw graphs     |
+| KMeans         | Create clusters |
+| StandardScaler | Scale data      |
+
+### Step 2: Load the Dataset
+
+Python
+
+```
+df = pd.read_csv("sales_data_sample.csv", encoding="latin1")
+```
+
+Explanation:
+
+* `pd.read_csv()` reads the CSV file.
+
+* `"sales_data_sample.csv"` is the dataset filename.
+
+* `encoding="latin1"` helps read special characters in the dataset.
+
+* `df` stores the dataset in DataFrame format.
+
+Example of sales data:
+
+| SALES | QUANTITYORDERED | PRICEEACH |
+| ----- | --------------- | --------- |
+| 1500  | 20              | 75        |
+| 2500  | 30              | 83        |
+| 500   | 10              | 50        |
+| 4000  | 40              | 100       |
+
+These values are only examples.
+
+### Step 3: Select Required Columns and Remove Missing Values
+
+Python
+
+```
+X = df[
+    ["SALES", "QUANTITYORDERED", "PRICEEACH"]
+].dropna()
+```
+
+This is a very important step.
+
+Explanation:
+
+* `X` stores the selected input data.
+
+* `"SALES"` represents the total sales amount.
+
+* `"QUANTITYORDERED"` represents the number of products ordered.
+
+* `"PRICEEACH"` represents the price of each product.
+
+* `dropna()` removes rows containing missing values in these selected columns.
+
+Why do we select only these three columns?
+
+Because we want to group sales records based on sales amount, quantity ordered, and product price.
+
+Remember: Unlike KNN, we don't have a target variable `y` here because K-Means is an unsupervised learning algorithm.
+
+### Step 4: Create StandardScaler
+
+Python
+
+```
+scaler = StandardScaler()
+```
+
+Explanation:
+
+* Creates a StandardScaler object.
+
+* It is used to standardize the dataset.
+
+* It brings different numerical features to a comparable scale.
+
+Why is scaling required?
+
+Consider these values:
+
+| Feature         | Value |
+| --------------- | ----- |
+| SALES           | 5000  |
+| QUANTITYORDERED | 20    |
+| PRICEEACH       | 100   |
+
+Here, SALES has much larger numerical values than the other features.
+
+If we don't scale the data, SALES may have a greater influence on the clustering process simply because of its numerical range.
+
+Therefore, we use StandardScaler.
+
+### Step 5: Transform the Data
+
+Python
+
+```
+X_scaled = scaler.fit_transform(X)
+```
+
+Explanation:
+
+This statement performs two operations:
+
+1. `fit()` calculates the mean and standard deviation of each column.
+
+2. `transform()` converts the original values into standardized values.
+
+The result is stored in `X_scaled`.
+
+Formula:
+
+Z=X−MeanStandard DeviationZ = \frac{X-\text{Mean}}{\text{Standard Deviation}}Z=Standard DeviationX−Mean
+
+After scaling, each feature has approximately:
+
+* Mean = 0
+
+* Standard Deviation = 1
+
+Remember:
+
+`fit_transform()` = Learn the scaling values + Transform the data.
+
+### Step 6: Create an Empty WCSS List
+
+Python
+
+```
+wcss = []
+```
+
+Explanation:
+
+* Creates an empty list named `wcss`.
+
+* WCSS stands for Within-Cluster Sum of Squares.
+
+* It stores the WCSS values for different numbers of clusters.
+
+What is WCSS?
+
+WCSS measures how close the data points are to their respective cluster centers.
+
+* Lower WCSS means data points are closer to their cluster centers.
+
+* Higher WCSS means data points are farther from their cluster centers.
+
+### Step 7: Apply the Elbow Method Using a For Loop
+
+Python
+
+```
+for k in range(1, 11):
+```
+
+Explanation:
+
+* A `for` loop is used to repeat the process.
+
+* `range(1, 11)` generates numbers from 1 to 10.
+
+* `k` represents the number of clusters.
+
+So, the algorithm tests:
+
+1 cluster, 2 clusters, 3 clusters, and so on up to 10 clusters.
+
+### Step 8: Create the K-Means Model
+
+Python
+
+```
+kmeans_model = KMeans(
+    n_clusters=k,
+    random_state=42,
+    n_init=10
+)
+```
+
+Explanation:
+
+This creates a K-Means clustering model.
+
+Meaning of parameters:
+
+| Parameter         | Meaning                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------- |
+| `n_clusters=k`    | Number of clusters                                                                              |
+| `random_state=42` | Makes initialization reproducible                                                               |
+| `n_init=10`       | Runs the algorithm 10 times with different initial centroid positions and keeps the best result |
+
+What is a centroid?
+
+A centroid is the center point of a cluster.
+
+![37  Clustering – Statistics for the Biosciences and Bioengineering](https://images.openai.com/static-rsc-4/Dt1HR1nK6AXNb-sMIaTxjhkQcwX8dT6gc2xB9GmQ5NnKJx3RO3T2_Qb1m0OEIniH8uSDWNsYaYrEsNnSF7vj_PaqvMUqyJXvLWCzgY6HVNk1loCLaNLfy8RGXCM1XgojZZWl5cbrLnaHwIKye3XfLwYLoXhC13ycUVNUogExaJ8?purpose=inline)
+
+Checking Favorites status
+
+[wcresko.github](https://wcresko.github.io/BioE_Stats_Book/chapters/36-clustering.html?utm_source=chatgpt.com)
+
+### Step 9: Train the K-Means Model
+
+Python
+
+```
+kmeans_model.fit(X_scaled)
+```
+
+Explanation:
+
+* `fit()` trains the K-Means model.
+
+* `X_scaled` contains the standardized sales data.
+
+* The algorithm finds groups of similar data points.
+
+How does K-Means work?
+
+1. Selects the required number of cluster centers.
+
+2. Assigns each data point to its nearest center.
+
+3. Calculates new cluster centers.
+
+4. Repeats the process until the centers become stable.
+
+### Step 10: Store WCSS Values
+
+Python
+
+```
+wcss.append(kmeans_model.inertia_)
+```
+
+Explanation:
+
+* `inertia_` gives the WCSS value of the trained K-Means model.
+
+* `append()` adds that value to the WCSS list.
+
+For example:
+
+Python
+
+```
+wcss = [5000, 3000, 1800, 1500, 1300]
+```
+
+These are only example values.
+
+The loop repeats this process for all values of K from 1 to 10.
+
+### Step 11: Plot the Elbow Graph
+
+Python
+
+```
+plt.plot(range(1, 11), wcss, marker="o")
+```
+
+Explanation:
+
+* `plt.plot()` creates a line graph.
+
+* `range(1, 11)` represents the number of clusters.
+
+* `wcss` represents the WCSS values.
+
+* `marker="o"` displays circular points on the graph.
+
+### Step 12: Give X-Axis Label
+
+Python
+
+```
+plt.xlabel("Number of Clusters")
+```
+
+Explanation:
+
+Displays the label "Number of Clusters" on the horizontal axis.
+
+### Step 13: Give Y-Axis Label
+
+Python
+
+```
+plt.ylabel("WCSS")
+```
+
+Explanation:
+
+Displays WCSS on the vertical axis.
+
+### Step 14: Give the Graph Title
+
+Python
+
+```
+plt.title("Elbow Method")
+```
+
+Explanation:
+
+Sets the title of the graph as "Elbow Method".
+
+### Step 15: Display the Graph
+
+Python
+
+```
+plt.show()
+```
+
+Explanation:
+
+Displays the Elbow Method graph on the screen.
+
+## 4. What is the Elbow Method?
+
+The Elbow Method is used to find the optimal number of clusters (K).
+
+![K-means Clustering: Choosing Optimal K, Process, and Evaluation Methods | by Nirmal Sankalana | Medium](https://images.openai.com/static-rsc-4/NY7Q5tCu7SKXvj2hGsI2NZFyu9KMm9Gybu25i-ZiQdPtRuFCXFEzCi6qj3DSXSrmeaB68KU-LYUeXA8g5yR_JeLBHFtesaI7D9hGlJS90xem5-s9FfeONr8swvVVD53UI9uXWYQhGfdxKMvMPWzQCqCt86wAYJsfCjAcMQxhFpE?purpose=inline)
+
+Checking Favorites status
+
+[medium](https://medium.com/%40nirmalsankalana/k-means-clustering-choosing-optimal-k-process-and-evaluation-methods-2c69377a7ee4?utm_source=chatgpt.com)
+
+How to understand the graph:
+
+1. X-axis represents the number of clusters.
+
+2. Y-axis represents WCSS.
+
+3. As the number of clusters increases, WCSS decreases.
+
+4. We identify the point where the decrease becomes much slower.
+
+5. This point looks like an elbow.
+
+For example, if the elbow appears at K = 3, we can select 3 clusters.
+
+Important: Your code does not automatically detect the elbow. You inspect the graph and choose the suitable K manually.
+
+### Step 16: Create the Final K-Means Model
+
+Python
+
+```
+kmeans_model = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
+```
+
+Explanation:
+
+* Creates the final K-Means model.
+
+* `n_clusters=3` means we want to divide the data into 3 groups.
+
+* `random_state=42` ensures reproducibility.
+
+* `n_init=10` tries 10 different initializations.
+
+Why 3 clusters?
+
+In this practical, we have selected 3 clusters as the final number. Ideally, this choice should be supported by the Elbow Method graph.
+
+### Step 17: Fit the Model and Predict Cluster Labels
+
+Python
+
+```
+cluster_labels = kmeans_model.fit_predict(X_scaled)
+```
+
+Explanation:
+
+This statement performs two operations:
+
+1. `fit()` trains the K-Means model.
+
+2. `predict()` assigns each data point to its nearest cluster.
+
+The cluster numbers are stored in `cluster_labels`.
+
+Example:
+
+```
+Cluster Labels: [0 1 2 0 1 2 0 2 1 0]
+```
+
+Meaning:
+
+* 0 = Cluster 0
+
+* 1 = Cluster 1
+
+* 2 = Cluster 2
+
+Important: Cluster 0, 1, and 2 are just group names. They do not automatically mean low, medium, or high sales.
+
+### Step 18: Display the First 10 Cluster Labels
+
+Python
+
+```
+print("Cluster Labels:", cluster_labels[:10])
+```
+
+Explanation:
+
+* `print()` displays the result.
+
+* `cluster_labels[:10]` displays only the first 10 cluster labels.
+
+* It helps us see which cluster the first 10 records belong to.
+
+### Step 19: Count the Number of Clusters
+
+Python
+
+```
+print("Number of Clusters:", len(set(cluster_labels)))
+```
+
+Let's understand this statement in three parts.
+
+1. `cluster_labels`
+
+Contains the cluster assigned to each data point.
+
+Example:
+
+Python
+
+```
+cluster_labels = [0, 1, 2, 0, 1, 2, 0]
+```
+
+2. `set(cluster_labels)`
+
+Removes repeated values.
+
+Python
+
+```
+{0, 1, 2}
+```
+
+3. `len(set(cluster_labels))`
+
+Counts the unique cluster labels.
+
+Output:
+
+```
+Number of Clusters: 3
+```
+
+This tells us that three different clusters are present in the results.
+
+## 5. Complete Practical Flowchart
+
+Start
+
+Import Required Libraries
+
+Load Sales Dataset
+
+Select Required Columns and Remove Missing Values
+
+Apply StandardScaler
+
+Initialize Empty WCSS List
+
+Apply K-Means for K = 1 to 10
+
+Calculate and Store WCSS Values
+
+Plot Elbow Method Graph
+
+Select K = 3 and Create Final Model
+
+Assign Cluster Labels
+
+Display Results and End
+
+## 6. Important Viva Questions and Answers
+
+Q1. What is the aim of this practical?
+
+To perform clustering on sales data using the K-Means algorithm and find the optimal number of clusters using the Elbow Method.
+
+Q2. What is clustering?
+
+Clustering is a machine learning technique used to divide similar data points into groups.
+
+Q3. What is K-Means?
+
+K-Means is an unsupervised machine learning algorithm used to divide data into K clusters.
+
+Q4. Is K-Means supervised or unsupervised learning?
+
+Unsupervised learning.
+
+Q5. What is a centroid?
+
+A centroid is the center point of a cluster.
+
+Q6. What is the Elbow Method?
+
+It is a technique used to find the optimal number of clusters by plotting WCSS against the number of clusters.
+
+Q7. What is WCSS?
+
+WCSS stands for Within-Cluster Sum of Squares. It measures the sum of squared distances between data points and their assigned cluster centers.
+
+Q8. What is StandardScaler?
+
+StandardScaler is used to standardize numerical data so that features have approximately zero mean and unit standard deviation.
+
+Q9. Why is scaling required in K-Means?
+
+Because K-Means uses distance calculations, features with larger numerical ranges can dominate the clustering process.
+
+Q10. What does `n_clusters=3` mean?
+
+It means the algorithm divides the data into three clusters.
+
+Q11. What does `random_state=42` do?
+
+It makes the random initialization reproducible.
+
+Q12. What does `n_init=10` mean?
+
+It runs K-Means 10 times with different initial centroid positions and selects the best result based on inertia.
+
+Q13. What does `inertia_` represent?
+
+It represents the WCSS value of the trained K-Means model.
+
+Q14. What is `fit_predict()`?
+
+It trains the model and assigns cluster labels to the data points.
+
+Q15. What is the use of `set()`?
+
+It removes duplicate values and gives unique cluster labels.
+
+Q16. What is the use of `len()`?
+
+It counts the number of elements.
+
+## 7. Test Your Understanding – Viva Practice
+
+K-Means practical quiz
+
+0/7 answered
+
+1. Which algorithm is used in this practical?
+
+KNN
+
+K-Means
+
+SVM
+
+2. K-Means belongs to which type of learning?
+
+Supervised
+
+Unsupervised
+
+Reinforcement
+
+3. What is the purpose of StandardScaler?
+
+Remove columns
+
+Scale numerical data
+
+Draw graphs
+
+4. What does WCSS stand for?
+
+Within-Cluster Sum of Squares
+
+Weighted Cluster System
+
+With Column Sum
+
+5. Which method helps find the optimal K?
+
+BFS
+
+Elbow Method
+
+Decision Tree
+
+6. What does n_clusters=3 mean?
+
+3 columns
+
+3 datasets
+
+3 groups
+
+7. What does fit_predict() do?
+
+Only trains
+
+Only plots
+
+Trains and assigns cluster labels
+
+Submit Answers
+
+## 8. Most Important Things to Remember for Your Practical Exam
+
+| Code               | Easy meaning              |
+| ------------------ | ------------------------- |
+| `pd.read_csv()`    | Read dataset              |
+| `dropna()`         | Remove missing values     |
+| `StandardScaler()` | Scale data                |
+| `fit_transform()`  | Learn and scale data      |
+| `KMeans()`         | Create clustering model   |
+| `fit()`            | Train model               |
+| `inertia_`         | Calculate WCSS            |
+| `append()`         | Add value to list         |
+| `plt.plot()`       | Draw graph                |
+| `fit_predict()`    | Train and assign clusters |
+| `set()`            | Find unique labels        |
+| `len()`            | Count elements            |
+
+My suggestion: For this practical, concentrate especially on these five concepts:
+
+1. What is K-Means?
+
+2. Why do we use StandardScaler?
+
+3. What is WCSS?
+
+4. What is the Elbow Method?
+
+5. What is a centroid?
+
+If you understand these five concepts, you can explain almost the entire practical confidently in your viva.

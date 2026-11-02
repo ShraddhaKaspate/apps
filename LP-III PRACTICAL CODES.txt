@@ -1,0 +1,394 @@
+LP-III PRACTICAL CODES
+DESIGN AND ANALYSIS OF ALGORITHMS (DAA) + MACHINE LEARNING (ML)
+=================================================================
+
+SECTION A: DESIGN AND ANALYSIS OF ALGORITHMS (DAA)
+==================================================
+
+DAA PRACTICAL 1: FIBONACCI SERIES USING RECURSION
+-------------------------------------------------
+
+steps = 0
+
+def fibonacci(n):
+    global steps
+    steps += 1
+
+    if n <= 1:
+        return n
+
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+
+n = int(input("Enter number of terms: "))
+
+print("Fibonacci Series:")
+for i in range(n):
+    print(fibonacci(i), end=" ")
+
+print("\nStep Count:", steps)
+
+Fibonacci using Recursive and Non-Recursive methods
+
+steps = 0
+
+Recursive method
+
+def fib_recursive(n):
+global steps
+steps += 1
+
+if n <= 1:  
+    return n  
+
+return fib_recursive(n-1) + fib_recursive(n-2)
+
+Non-Recursive method
+
+def fib_iterative(n):
+a, b = 0, 1
+count = 0
+
+for i in range(n):  
+    count += 1  
+    a, b = b, a+b  
+
+return (0 if n == 0 else a), count
+
+Main program
+
+n = int(input("Enter number: "))
+
+steps = 0
+r = fib_recursive(n)
+
+i, count = fib_iterative(n)
+
+print("Recursive Fibonacci:", r)
+print("Recursive Step Count:", steps)
+
+print("Non-Recursive Fibonacci:", i)
+print("Non-Recursive Step Count:", count)
+
+print("Recursive Time Complexity: O(2^n)")
+print("Iterative Time Complexity: O(n)") tell me and teach me the logic of the code simple as its very baosc for me so explain best possible way but simple
+
+
+DAA PRACTICAL 2: JOB SEQUENCING WITH DEADLINES USING GREEDY METHOD
+------------------------------------------------------------------
+
+jobs = [
+    ("J1", 2, 100),
+    ("J2", 1, 19),
+    ("J3", 2, 27),
+    ("J4", 1, 25),
+    ("J5", 3, 15)
+]
+
+jobs.sort(key=lambda x: x[2], reverse=True)
+
+max_deadline = max(job[1] for job in jobs)
+slots = [None] * max_deadline
+total_profit = 0
+
+for job in jobs:
+    name, deadline, profit = job
+
+    for j in range(deadline - 1, -1, -1):
+        if slots[j] is None:
+            slots[j] = name
+            total_profit += profit
+            break
+
+print("Scheduled Jobs:", slots)
+print("Total Profit:", total_profit)
+
+
+DAA PRACTICAL 3: FRACTIONAL KNAPSACK USING GREEDY METHOD
+--------------------------------------------------------
+
+profit = [60, 100, 120]
+weight = [10, 20, 30]
+capacity = 50
+
+n = len(profit)
+ratio = []
+
+for i in range(n):
+    ratio.append(profit[i] / weight[i])
+
+items = sorted(range(n), key=lambda i: ratio[i], reverse=True)
+
+total_profit = 0
+
+for i in items:
+    if weight[i] <= capacity:
+        total_profit += profit[i]
+        capacity -= weight[i]
+    else:
+        total_profit += ratio[i] * capacity
+        capacity = 0
+        break
+
+print("Maximum Profit:", total_profit)
+
+
+DAA PRACTICAL 4: 0/1 KNAPSACK USING DYNAMIC PROGRAMMING
+-------------------------------------------------------
+
+profit = [60, 100, 120]
+weight = [10, 20, 30]
+capacity = 50
+
+n = len(profit)
+
+dp = [
+    [0 for x in range(capacity + 1)]
+    for y in range(n + 1)
+]
+
+for i in range(1, n + 1):
+    for w in range(1, capacity + 1):
+        if weight[i - 1] <= w:
+            dp[i][w] = max(
+                profit[i - 1] + dp[i - 1][w - weight[i - 1]],
+                dp[i - 1][w]
+            )
+        else:
+            dp[i][w] = dp[i - 1][w]
+
+print("Maximum Profit:", dp[n][capacity])
+
+
+DAA PRACTICAL 5: 8 QUEENS PROBLEM USING BACKTRACKING
+----------------------------------------------------
+
+N = 8
+board = [[0] * N for i in range(N)]
+
+
+def safe(row, col):
+    for i in range(row):
+        if board[i][col] == 1:
+            return False
+
+        if col - (row - i) >= 0:
+            if board[i][col - (row - i)] == 1:
+                return False
+
+        if col + (row - i) < N:
+            if board[i][col + (row - i)] == 1:
+                return False
+
+    return True
+
+
+def solve(row):
+    if row == N:
+        return True
+
+    for col in range(N):
+        if safe(row, col):
+            board[row][col] = 1
+
+            if solve(row + 1):
+                return True
+
+            board[row][col] = 0
+
+    return False
+
+
+if solve(0):
+    for row in board:
+        print(row)
+else:
+    print("No solution")
+
+
+SECTION B: MACHINE LEARNING (ML)
+===============================
+
+ML PRACTICAL 1: UBER FARE PREDICTION USING LINEAR REGRESSION AND RANDOM FOREST REGRESSION
+-----------------------------------------------------------------------------------------
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_squared_error
+
+df = pd.read_csv("uber.csv")
+df = df.dropna().drop_duplicates()
+
+Q1 = df["fare_amount"].quantile(0.25)
+Q3 = df["fare_amount"].quantile(0.75)
+IQR = Q3 - Q1
+
+df = df[
+    df["fare_amount"].between(
+        Q1 - 1.5 * IQR,
+        Q3 + 1.5 * IQR
+    )
+]
+
+print(df.corr(numeric_only=True)["fare_amount"])
+
+X = df[
+    [
+        "pickup_longitude",
+        "pickup_latitude",
+        "dropoff_longitude",
+        "dropoff_latitude",
+        "passenger_count"
+    ]
+]
+
+y = df["fare_amount"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+linear_model = LinearRegression()
+linear_model.fit(X_train, y_train)
+linear_predictions = linear_model.predict(X_test)
+
+random_forest_model = RandomForestRegressor(
+    n_estimators=50,
+    random_state=42
+)
+
+random_forest_model.fit(X_train, y_train)
+random_forest_predictions = random_forest_model.predict(X_test)
+
+print("Linear Regression")
+print("R2 Score:", r2_score(y_test, linear_predictions))
+print(
+    "RMSE:",
+    mean_squared_error(y_test, linear_predictions) ** 0.5
+)
+
+print("Random Forest Regression")
+print("R2 Score:", r2_score(y_test, random_forest_predictions))
+print(
+    "RMSE:",
+    mean_squared_error(y_test, random_forest_predictions) ** 0.5
+)
+
+
+ML PRACTICAL 2: EMAIL SPAM CLASSIFICATION USING KNN AND SVM
+----------------------------------------------------------
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+df = pd.read_csv("emails.csv")
+df = df.dropna().drop_duplicates()
+df = df.drop(columns=["Email No."])
+
+X = df.drop("Prediction", axis=1)
+y = df["Prediction"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+knn_predictions = knn_model.predict(X_test)
+
+svm_model = SVC()
+svm_model.fit(X_train, y_train)
+svm_predictions = svm_model.predict(X_test)
+
+print("KNN Accuracy:", accuracy_score(y_test, knn_predictions))
+print("KNN Confusion Matrix:")
+print(confusion_matrix(y_test, knn_predictions))
+
+print("SVM Accuracy:", accuracy_score(y_test, svm_predictions))
+print("SVM Confusion Matrix:")
+print(confusion_matrix(y_test, svm_predictions))
+
+
+ML PRACTICAL 3: DIABETES PREDICTION USING K-NEAREST NEIGHBORS
+------------------------------------------------------------
+
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.metrics import precision_score, recall_score
+
+df = pd.read_csv("diabetes.csv")
+
+X = df.drop("Outcome", axis=1)
+y = df["Outcome"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+knn_model = KNeighborsClassifier(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+predictions = knn_model.predict(X_test)
+
+print("Confusion Matrix:")
+print(confusion_matrix(y_test, predictions))
+
+accuracy = accuracy_score(y_test, predictions)
+
+print("Accuracy:", accuracy)
+print("Error Rate:", 1 - accuracy)
+print("Precision:", precision_score(y_test, predictions))
+print("Recall:", recall_score(y_test, predictions))
+
+
+ML PRACTICAL 4: SALES DATA CLUSTERING USING K-MEANS AND ELBOW METHOD
+--------------------------------------------------------------------
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+df = pd.read_csv("sales_data_sample.csv", encoding="latin1")
+
+X = df[
+    ["SALES", "QUANTITYORDERED", "PRICEEACH"]
+].dropna()
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+wcss = []
+
+for k in range(1, 11):
+    kmeans_model = KMeans(
+        n_clusters=k,
+        random_state=42,
+        n_init=10
+    )
+
+    kmeans_model.fit(X_scaled)
+    wcss.append(kmeans_model.inertia_)
+
+plt.plot(range(1, 11), wcss, marker="o")
+plt.xlabel("Number of Clusters")
+plt.ylabel("WCSS")
+plt.title("Elbow Method")
+plt.show()
+
+kmeans_model = KMeans(
+    n_clusters=3,
+    random_state=42,
+    n_init=10
+)
+
+cluster_labels = kmeans_model.fit_predict(X_scaled)
+
+print("Cluster Labels:", cluster_labels[:10])
+print("Number of Clusters:", len(set(cluster_labels)))
